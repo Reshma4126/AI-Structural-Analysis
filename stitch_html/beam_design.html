@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Beam Design Wizard | Structura AI</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed-variant": "#004e60",
+                    "on-tertiary-container": "#fafdff",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "surface": "#f7f9ff",
+                    "on-primary-container": "#fdfcff",
+                    "surface-bright": "#f7f9ff",
+                    "primary-fixed": "#cee5ff",
+                    "inverse-surface": "#26313d",
+                    "secondary-fixed": "#dee4e4",
+                    "on-tertiary-fixed": "#001f28",
+                    "on-surface": "#111d27",
+                    "on-primary": "#ffffff",
+                    "tertiary-container": "#007f9b",
+                    "surface-container-high": "#dee9f8",
+                    "surface-variant": "#d8e4f3",
+                    "on-secondary-container": "#5f6666",
+                    "on-primary-fixed-variant": "#004a75",
+                    "surface-tint": "#206393",
+                    "surface-container-highest": "#d8e4f3",
+                    "secondary-container": "#dee4e4",
+                    "on-secondary-fixed": "#171d1d",
+                    "on-primary-fixed": "#001d32",
+                    "outline-variant": "#c1c7d0",
+                    "on-background": "#111d27",
+                    "secondary": "#596060",
+                    "inverse-primary": "#96ccff",
+                    "on-secondary-fixed-variant": "#424848",
+                    "on-surface-variant": "#41474f",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "primary": "#1c6090",
+                    "tertiary-fixed-dim": "#58d5fb",
+                    "surface-dim": "#d0dbea",
+                    "surface-container-low": "#edf4ff",
+                    "outline": "#717880",
+                    "inverse-on-surface": "#e8f2ff",
+                    "secondary-fixed-dim": "#c2c8c8",
+                    "primary-fixed-dim": "#96ccff",
+                    "on-secondary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "surface-container": "#e3effe",
+                    "primary-container": "#3c79ab",
+                    "tertiary": "#00657b",
+                    "background": "#f7f9ff",
+                    "tertiary-fixed": "#b5ebff",
+                    "error-container": "#ffdad6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "40px",
+                    "container-max-width": "1440px",
+                    "margin-mobile": "16px",
+                    "unit": "4px",
+                    "margin-tablet": "24px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "label-md": ["Inter", "sans-serif"],
+                    "display-lg": ["Manrope", "sans-serif"],
+                    "headline-lg": ["Manrope", "sans-serif"],
+                    "body-sm": ["Inter", "sans-serif"],
+                    "body-md": ["Inter", "sans-serif"],
+                    "body-lg": ["Inter", "sans-serif"],
+                    "headline-md": ["Manrope", "sans-serif"],
+                    "mono-label": ["JetBrains Mono", "monospace"]
+            },
+            "fontSize": {
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "mono-label": ["13px", {"lineHeight": "18px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #F8F9F9;
+            color: #111d27;
+        }
+        .technical-line {
+            background-image: linear-gradient(to right, #D5DBDB 1px, transparent 1px);
+            background-size: 20px 1px;
+        }
+        .blueprint-grid {
+            background-image: radial-gradient(#717880 0.5px, transparent 0.5px);
+            background-size: 10px 10px;
+        }
+        .stepper-line {
+            height: 2px;
+            background: #dee4e4;
+            flex-grow: 1;
+            margin: 0 12px;
+            margin-top: 14px;
+        }
+        .input-focus-ring:focus {
+            outline: none;
+            border-color: #1c6090;
+            box-shadow: 0 0 0 2px rgba(92, 197, 222, 0.2);
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<aside class="h-full w-64 bg-surface-container-low border-r border-outline-variant flex flex-col py-6 px-4 gap-4 flex-shrink-0">
+<div class="flex items-center gap-3 px-2 mb-4">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">architecture</span>
+</div>
+<div>
+<p class="font-headline-sm text-headline-sm font-bold text-primary">Main Workspace</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant opacity-70">Structural Engineering</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all active:translate-x-1" href="#">
+<span class="material-symbols-outlined">folder_open</span>
+<span class="font-label-md text-label-md">Projects</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-primary-container text-on-primary-container rounded-lg font-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">architecture</span>
+<span class="font-label-md text-label-md">Beam Designs</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all active:translate-x-1" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-label-md text-label-md">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all active:translate-x-1" href="#">
+<span class="material-symbols-outlined">database</span>
+<span class="font-label-md text-label-md">Datasets</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all active:translate-x-1 mt-auto" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<button class="mt-4 w-full py-2.5 bg-primary text-white rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+            New Project
+        </button>
+</aside>
+<!-- Main Content Shell -->
+<div class="flex-1 flex flex-col h-screen overflow-hidden">
+<!-- TopNavBar -->
+<header class="h-16 bg-surface border-b border-outline-variant flex justify-between items-center px-margin-desktop w-full max-w-container-max-width mx-auto flex-shrink-0">
+<div class="flex items-center gap-8">
+<h1 class="font-headline-md text-headline-md font-extrabold text-primary">Structura AI</h1>
+<div class="hidden md:flex gap-6">
+<a class="font-label-md text-label-md text-primary border-b-2 border-primary pb-1" href="#">Wizard</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors px-2 rounded" href="#">Library</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors px-2 rounded" href="#">Analysis</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:bg-surface-container-high p-2 rounded-full transition-colors">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:bg-surface-container-high p-2 rounded-full transition-colors">help</span>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-high border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a structural engineer in a minimalist modern studio with soft daylight and high-end photographic quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgJ2FgxBfBhSuaNxCsMouA-ZS2zOXtATxaJUdXPrD6xFfRnZ81yIXfgy-Lm8q7nooGbh5U6YLhnOcV8Ii-BbB31ZKHwdJ3kaYStmXtag96mmN4ExloeugDYh3Tm31nRjl3EuPpDQKv-pUP17SymGjk_YSG_bxWAvLOkHkII3gJd5mbspx4waP_QxSUbT3h5OK37ql2r5DR9aBrx03FdV0_O5Q2MqG285Iiw7I2KuGmlUTlz9lQntfRcg"/>
+</div>
+</div>
+</header>
+<!-- Page Canvas -->
+<main class="flex-1 overflow-y-auto p-margin-desktop">
+<div class="max-w-6xl mx-auto">
+<!-- Page Header -->
+<div class="mb-8">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">New Beam Design</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Configure structural parameters for AI analysis</p>
+</div>
+<!-- Wizard Main Card -->
+<div class="bg-surface-container-lowest rounded-[20px] border border-outline-variant shadow-[0px_4px_20px_rgba(27,38,49,0.05)] overflow-hidden flex flex-col h-[700px]">
+<!-- Stepper -->
+<div class="px-8 py-6 border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center flex-1">
+<div class="flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-label-md text-label-md">1</div>
+<span class="font-label-md text-label-md text-primary">Geometry</span>
+</div>
+<div class="stepper-line"></div>
+<div class="flex flex-col items-center gap-2 opacity-40">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-label-md text-label-md">2</div>
+<span class="font-label-md text-label-md">Materials</span>
+</div>
+<div class="stepper-line"></div>
+<div class="flex flex-col items-center gap-2 opacity-40">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-label-md text-label-md">3</div>
+<span class="font-label-md text-label-md">Reinforcement</span>
+</div>
+<div class="stepper-line"></div>
+<div class="flex flex-col items-center gap-2 opacity-40">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-label-md text-label-md">4</div>
+<span class="font-label-md text-label-md">Loading</span>
+</div>
+<div class="stepper-line"></div>
+<div class="flex flex-col items-center gap-2 opacity-40">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-label-md text-label-md">5</div>
+<span class="font-label-md text-label-md">Advanced</span>
+</div>
+</div>
+</div>
+<!-- Wizard Content -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Form Section -->
+<div class="w-1/3 p-8 border-r border-outline-variant overflow-y-auto">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-6">Cross Sectional Dimensions</h3>
+<div class="space-y-6">
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-2">Beam Width (b)</label>
+<div class="relative">
+<input class="w-full h-10 px-3 bg-surface border border-outline rounded input-focus-ring font-body-md text-body-md" type="number" value="400"/>
+<span class="absolute right-3 top-2.5 font-mono-label text-mono-label text-outline">mm</span>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-2">Overall Depth (h)</label>
+<div class="relative">
+<input class="w-full h-10 px-3 bg-surface border border-outline rounded input-focus-ring font-body-md text-body-md" type="number" value="600"/>
+<span class="absolute right-3 top-2.5 font-mono-label text-mono-label text-outline">mm</span>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-2">Total Span (L)</label>
+<div class="relative">
+<input class="w-full h-10 px-3 bg-surface border border-outline rounded input-focus-ring font-body-md text-body-md" step="0.1" type="number" value="12.5"/>
+<span class="absolute right-3 top-2.5 font-mono-label text-mono-label text-outline">m</span>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-2">Effective Depth (d)</label>
+<div class="relative">
+<input class="w-full h-10 px-3 bg-surface border border-outline rounded input-focus-ring font-body-md text-body-md" type="number" value="550"/>
+<span class="absolute right-3 top-2.5 font-mono-label text-mono-label text-outline">mm</span>
+</div>
+<p class="mt-2 font-body-sm text-body-sm text-on-surface-variant opacity-60">Estimated based on reinforcement cover of 50mm.</p>
+</div>
+</div>
+<div class="mt-8 p-4 bg-tertiary-fixed rounded-lg border border-tertiary-container">
+<div class="flex gap-2 items-start text-on-tertiary-fixed-variant">
+<span class="material-symbols-outlined text-[20px]">info</span>
+<p class="font-body-sm text-body-sm">AI Recommendation: For a span of 12.5m, a depth of 650mm is suggested for optimal deflection control.</p>
+</div>
+</div>
+</div>
+<!-- Technical Illustration Section -->
+<div class="flex-1 bg-surface-container overflow-hidden relative">
+<!-- Background Pattern Injection -->
+<div class="absolute inset-0 blueprint-grid opacity-10"></div>
+<div class="absolute inset-0" style="background-image: url('https://lh3.googleusercontent.com/aida/AP1WRLssdROBfvQi_7sWUIx0CIfDclxRFFUgImpZ3H1VlWzRCrO9biAuIq6BzwdijepEb3MJ483jUUA3wf6c3nNTVnuouY3WEJau7U-ZbqREgthbOAdXpdseaprmsVDrL4eHcfvFY4YKtHq5bZ17L9P8NFgejd85Xeqs0J4xZCeIzKTUbozLO4-9gofzZYRkhNI6YRXuhpmL3JDE0WmZGugcjqYRHh5Hk4KwGAdMs3YPtXZvP62-QXQ5mJSUHBxd'); background-blend-mode: overlay; background-size: 400px; opacity: 0.05;"></div>
+<div class="absolute inset-0 flex items-center justify-center p-12">
+<div class="w-full h-full flex flex-col items-center justify-center gap-12">
+<!-- Longitudinal View -->
+<div class="relative w-full h-24 border-2 border-primary bg-white/80 rounded shadow-sm flex items-center justify-center">
+<div class="absolute -bottom-6 left-0 right-0 flex justify-between px-2 text-outline">
+<div class="w-px h-2 bg-outline"></div>
+<div class="flex-1 border-b border-dashed border-outline self-center mx-2"></div>
+<span class="font-mono-label text-mono-label whitespace-nowrap">L = 12,500 mm</span>
+<div class="flex-1 border-b border-dashed border-outline self-center mx-2"></div>
+<div class="w-px h-2 bg-outline"></div>
+</div>
+<span class="font-label-md text-label-md text-primary/40 uppercase tracking-widest">Main Longitudinal Section</span>
+</div>
+<!-- Cross Section Detail -->
+<div class="flex items-center gap-24 mt-8">
+<div class="relative w-48 h-64 border-2 border-primary bg-white rounded shadow-sm">
+<!-- Reinforcement markers -->
+<div class="absolute bottom-4 left-4 right-4 flex justify-around">
+<div class="w-3 h-3 rounded-full bg-primary-container border border-primary"></div>
+<div class="w-3 h-3 rounded-full bg-primary-container border border-primary"></div>
+<div class="w-3 h-3 rounded-full bg-primary-container border border-primary"></div>
+</div>
+<!-- Dimensions -->
+<div class="absolute -left-16 top-0 bottom-0 flex flex-col justify-between py-2 text-outline">
+<div class="h-px w-2 bg-outline"></div>
+<div class="flex-1 border-l border-dashed border-outline self-center mx-2"></div>
+<span class="font-mono-label text-mono-label -rotate-90">h = 600</span>
+<div class="flex-1 border-l border-dashed border-outline self-center mx-2"></div>
+<div class="h-px w-2 bg-outline"></div>
+</div>
+<div class="absolute -top-10 left-0 right-0 flex justify-between px-2 text-outline">
+<div class="w-px h-2 bg-outline"></div>
+<div class="flex-1 border-b border-dashed border-outline self-center mx-2"></div>
+<span class="font-mono-label text-mono-label">b = 400</span>
+<div class="flex-1 border-b border-dashed border-outline self-center mx-2"></div>
+<div class="w-px h-2 bg-outline"></div>
+</div>
+<!-- Effective Depth Marker -->
+<div class="absolute top-0 right-0 h-[550px] border-r-2 border-error/40 -mr-6 pointer-events-none"></div>
+<div class="absolute top-[275px] -right-16 font-mono-label text-mono-label text-error opacity-60">d = 550</div>
+</div>
+<div class="max-w-xs space-y-4">
+<h4 class="font-label-md text-label-md text-on-surface">Detail A: Connection Hub</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                                                Dimensions correspond to a standard rectangular reinforced concrete section. Effective depth (d) is auto-calculated based on centroid of tension steel.
+                                            </p>
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-sm">visibility</span>
+<span class="font-label-md text-label-md underline cursor-pointer">Preview 3D Mesh</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Wizard Footer -->
+<div class="px-8 py-4 border-t border-outline-variant bg-surface flex justify-between items-center">
+<div class="flex items-center gap-4">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Step 1 of 5</span>
+<div class="w-32 h-1 bg-secondary-container rounded-full overflow-hidden">
+<div class="w-1/5 h-full bg-primary"></div>
+</div>
+</div>
+<div class="flex gap-4">
+<button class="px-6 py-2 border border-outline rounded-lg font-label-md text-label-md text-on-surface hover:bg-surface-variant transition-colors disabled:opacity-50" disabled="">Previous</button>
+<button class="px-6 py-2 bg-primary text-white rounded-lg font-label-md text-label-md hover:bg-primary-container transition-all active:scale-95">Next: Material Properties</button>
+</div>
+</div>
+</div>
+<!-- Secondary Data Grid -->
+<div class="mt-8 grid grid-cols-3 gap-6">
+<div class="bg-white p-6 rounded-xl border border-outline-variant">
+<p class="font-label-md text-label-md text-on-surface-variant mb-2">Calculated Weight</p>
+<p class="font-headline-md text-headline-md text-on-surface">5.85 <span class="font-body-sm text-body-sm text-on-surface-variant">kN/m</span></p>
+</div>
+<div class="bg-white p-6 rounded-xl border border-outline-variant">
+<p class="font-label-md text-label-md text-on-surface-variant mb-2">Compliance Score</p>
+<div class="flex items-center gap-2">
+<span class="font-headline-md text-headline-md text-on-surface">94%</span>
+<span class="material-symbols-outlined text-tertiary">check_circle</span>
+</div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-outline-variant">
+<p class="font-label-md text-label-md text-on-surface-variant mb-2">Estimated Volume</p>
+<p class="font-headline-md text-headline-md text-on-surface">3.00 <span class="font-body-sm text-body-sm text-on-surface-variant">m³</span></p>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Micro-interaction Script -->
+<script>
+        // Simple input highlight logic
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', () => {
+                // In a real app, this would highlight the corresponding part of the SVG
+                console.log('Focusing on field:', input.previousElementSibling.innerText);
+            });
+        });
+    </script>
+</body></html>

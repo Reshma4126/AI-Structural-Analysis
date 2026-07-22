@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #F8F9F9;
+    color: #1B2631;
+    font-family: 'Inter', sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Manrope', sans-serif;
+  }
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 24;
+  vertical-align: middle;
+  display: inline-block;
+  line-height: 1;
+}
+
+.material-symbols-outlined.fill-1 {
+  font-variation-settings: 'FILL' 1;
+}
+
+/* Technical Blueprint Grid Background */
+.bg-blueprint-grid {
+  background-size: 24px 24px;
+  background-image: 
+    linear-gradient(to right, rgba(27, 38, 49, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(27, 38, 49, 0.04) 1px, transparent 1px);
+}
+
+.bg-blueprint-dark {
+  background-size: 20px 20px;
+  background-image: 
+    linear-gradient(to right, rgba(70, 130, 180, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(70, 130, 180, 0.1) 1px, transparent 1px);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f3f5;
+}
+::-webkit-scrollbar-thumb {
+  background: #ced4da;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #adb5bd;
+}

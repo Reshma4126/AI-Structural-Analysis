@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Structura AI | Recommendation Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#3c79ab",
+                        "on-tertiary-fixed": "#001f28",
+                        "tertiary-container": "#007f9b",
+                        "primary-fixed-dim": "#96ccff",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#c1c7d0",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#d8e4f3",
+                        "primary-fixed": "#cee5ff",
+                        "on-secondary-fixed-variant": "#424848",
+                        "inverse-primary": "#96ccff",
+                        "secondary-fixed-dim": "#c2c8c8",
+                        "on-secondary-container": "#5f6666",
+                        "tertiary-fixed-dim": "#58d5fb",
+                        "secondary-container": "#dee4e4",
+                        "on-tertiary-container": "#fafdff",
+                        "surface-container-high": "#dee9f8",
+                        "tertiary-fixed": "#b5ebff",
+                        "primary": "#1c6090",
+                        "surface-bright": "#f7f9ff",
+                        "on-secondary-fixed": "#171d1d",
+                        "secondary": "#596060",
+                        "tertiary": "#00657b",
+                        "surface-tint": "#206393",
+                        "surface-container-low": "#edf4ff",
+                        "on-primary-container": "#fdfcff",
+                        "inverse-surface": "#26313d",
+                        "surface-dim": "#d0dbea",
+                        "inverse-on-surface": "#e8f2ff",
+                        "outline": "#717880",
+                        "on-surface": "#111d27",
+                        "on-tertiary-fixed-variant": "#004e60",
+                        "on-primary-fixed": "#001d32",
+                        "error-container": "#ffdad6",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#41474f",
+                        "surface-container": "#e3effe",
+                        "surface": "#f7f9ff",
+                        "on-primary-fixed-variant": "#004a75",
+                        "on-background": "#111d27",
+                        "on-error-container": "#93000a",
+                        "surface-container-highest": "#d8e4f3",
+                        "secondary-fixed": "#dee4e4",
+                        "on-error": "#ffffff",
+                        "background": "#f7f9ff",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "card": "20px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "unit": "4px",
+                        "margin-tablet": "24px",
+                        "gutter": "24px",
+                        "margin-desktop": "40px",
+                        "container-max-width": "1440px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "display-lg": ["Manrope"],
+                        "mono-label": ["JetBrains Mono"],
+                        "headline-md": ["Manrope"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Manrope"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "mono-label": ["13px", {"lineHeight": "18px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #f7f9ff;
+            background-image: url('https://lh3.googleusercontent.com/aida/AP1WRLssdROBfvQi_7sWUIx0CIfDclxRFFUgImpZ3H1VlWzRCrO9biAuIq6BzwdijepEb3MJ483jUUA3wf6c3nNTVnuouY3WEJau7U-ZbqREgthbOAdXpdseaprmsVDrL4eHcfvFY4YKtHq5bZ17L9P8NFgejd85Xeqs0J4xZCeIzKTUbozLO4-9gofzZYRkhNI6YRXuhpmL3JDE0WmZGugcjqYRHh5Hk4KwGAdMs3YPtXZvP62-QXQ5mJSUHBxd');
+            background-repeat: repeat;
+            background-size: 400px 400px;
+        }
+
+        .blueprint-line {
+            stroke: #c1c7d0;
+            stroke-width: 1px;
+            stroke-dasharray: 4 2;
+        }
+
+        .technical-card {
+            border: 1px solid #D5DBDB;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+        }
+
+        .electric-cyan-pulse {
+            animation: pulse-cyan 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse-cyan {
+            0%, 100% { opacity: 1; color: #58d5fb; }
+            50% { opacity: 0.7; color: #007f9b; }
+        }
+
+        .scroll-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scroll-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface antialiased overflow-x-hidden">
+<!-- TopNavBar -->
+<nav class="flex justify-between items-center px-6 w-full sticky top-0 z-50 bg-surface dark:bg-on-background h-16 border-b border-outline-variant dark:border-outline flat no shadows">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">Structura AI</span>
+<div class="h-6 w-[1px] bg-outline-variant mx-2"></div>
+<div class="flex gap-6">
+<a class="text-primary dark:text-primary-fixed font-bold border-b-2 border-primary py-4 font-body-md text-body-md" href="#">Dashboard</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-colors py-4 px-2 font-body-md text-body-md cursor-pointer duration-200" href="#">Projects</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center bg-surface-container rounded-full px-4 py-1.5 gap-2">
+<span class="material-symbols-outlined text-[20px] text-outline">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm w-48" placeholder="Search structures..." type="text"/>
+</div>
+<button class="material-symbols-outlined text-outline hover:text-primary transition-colors cursor-pointer">notifications</button>
+<button class="material-symbols-outlined text-outline hover:text-primary transition-colors cursor-pointer">help_outline</button>
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary text-[12px] font-bold">
+<img class="w-full h-full rounded-full object-cover" data-alt="A professional headshot of a Chief Structural Engineer in high-visibility gear, minimalist office setting, professional studio lighting, muted corporate colors." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAglZvAHhXGhUcL-5puOtXmVQ-_eMuJicm-cgn2yDO_6cBGnvgA5vlq0H6ZqjMHK4HrrGQbrHJ82Lb0qndz_oYGOXKCtElM5FECkWUz3BAmDe_eU-If5k5wHLa3Pguz2PjUKXjfubsUb41o9htatHUV9Pw2vKjM_wuQMJSrKhxgAPkuYfiCVSaec5Hijl3yvSKPgYaybNhF1syqhlkwpoF4RXGfvkfGNnzZGokoSvdZ4JR9MO-eBd6aRQ"/>
+</div>
+</div>
+</nav>
+<div class="flex h-[calc(100vh-64px)] overflow-hidden">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-16 h-full w-64 flex flex-col py-6 px-4 bg-surface-container-lowest dark:bg-on-tertiary-fixed border-r border-outline-variant dark:border-outline z-40">
+<div class="mb-8 px-2">
+<div class="flex items-center gap-3 mb-1">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white">architecture</span>
+</div>
+<div>
+<h3 class="font-headline-md text-[16px] leading-tight text-primary">Precision Labs</h3>
+<p class="font-label-md text-[10px] text-secondary">Structural Division</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-all rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">folder_open</span> Projects
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-primary dark:text-primary-fixed-dim font-bold bg-surface-container dark:bg-surface-container-highest rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">architecture</span> Beam Designs
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-all rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">assessment</span> Reports
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-all rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">database</span> Datasets
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-all rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+                </a>
+</nav>
+<div class="mt-auto space-y-1 border-t border-outline-variant pt-4">
+<a class="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-low transition-all rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">support_agent</span> Support
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-low transition-all rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">menu_book</span> Documentation
+                </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 flex-1 flex flex-col h-full bg-transparent overflow-y-auto scroll-hide">
+<!-- Page Header -->
+<header class="px-10 py-8">
+<div class="flex justify-between items-end">
+<div>
+<nav class="flex text-label-md font-label-md text-outline mb-2 uppercase tracking-widest">
+<span>Project Alpha</span>
+<span class="mx-2">/</span>
+<span class="text-primary">Recommendation Engine</span>
+</nav>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">AI Optimization Dashboard</h1>
+</div>
+<div class="flex items-center gap-4 bg-white/50 border border-outline-variant p-2 rounded-xl">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-white flex items-center justify-center text-[10px] font-bold">JD</div>
+<div class="w-8 h-8 rounded-full bg-primary-container border-2 border-white flex items-center justify-center text-[10px] font-bold text-white">SA</div>
+</div>
+<span class="text-label-md font-label-md text-secondary">Collaborative Review Active</span>
+</div>
+</div>
+</header>
+<!-- Three Column Layout -->
+<div class="grid grid-cols-12 gap-gutter px-10 pb-8 h-full min-h-[500px]">
+<!-- LEFT COLUMN: Current Beam Design -->
+<div class="col-span-3 flex flex-col gap-4">
+<div class="technical-card p-6 flex-1 flex flex-col">
+<div class="flex items-center justify-between mb-6">
+<h2 class="font-headline-md text-[18px] text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-outline">architecture</span>
+                                Current Design
+                            </h2>
+<span class="font-mono-label text-[10px] bg-surface-variant px-2 py-1 rounded">REV_04</span>
+</div>
+<div class="relative flex-1 bg-surface-container-lowest border border-outline-variant rounded-lg p-4 mb-6 overflow-hidden">
+<div class="absolute inset-0 opacity-10 pointer-events-none">
+<div class="w-full h-full" style="background-image: radial-gradient(circle, #717880 1px, transparent 1px); background-size: 16px 16px;"></div>
+</div>
+<div class="relative w-full h-full flex flex-col items-center justify-center">
+<!-- Technical Drawing Simulation -->
+<div class="w-3/4 h-24 border-2 border-secondary relative">
+<div class="absolute -left-8 top-0 h-full flex flex-col justify-between items-center py-2">
+<div class="w-4 h-[1px] bg-secondary"></div>
+<div class="h-full w-[1px] bg-secondary"></div>
+<div class="w-4 h-[1px] bg-secondary"></div>
+<span class="absolute text-[10px] font-mono-label -left-10 rotate-90 whitespace-nowrap">600mm</span>
+</div>
+<div class="absolute -bottom-8 left-0 w-full flex justify-between items-center px-2">
+<div class="h-4 w-[1px] bg-secondary"></div>
+<div class="w-full h-[1px] bg-secondary"></div>
+<div class="h-4 w-[1px] bg-secondary"></div>
+<span class="absolute text-[10px] font-mono-label bottom-[-18px] left-1/2 -translate-x-1/2">400mm</span>
+</div>
+<div class="absolute inset-0 flex items-center justify-center opacity-20">
+<span class="material-symbols-outlined text-[48px]">grid_on</span>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center border-b border-outline-variant pb-2">
+<span class="text-label-md font-label-md text-secondary">Width</span>
+<span class="font-mono-label text-on-surface">400mm</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant pb-2">
+<span class="text-label-md font-label-md text-secondary">Depth</span>
+<span class="font-mono-label text-on-surface">600mm</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant pb-2">
+<span class="text-label-md font-label-md text-secondary">Span</span>
+<span class="font-mono-label text-on-surface">12.5m</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-label-md font-label-md text-secondary">Grade</span>
+<span class="font-mono-label text-on-surface">C30 Concrete</span>
+</div>
+</div>
+</div>
+</div>
+<!-- CENTER COLUMN: AI Recommendation Engine -->
+<div class="col-span-6 flex flex-col">
+<div class="technical-card flex-1 relative overflow-hidden flex flex-col">
+<div class="absolute top-0 left-0 w-full p-6 flex justify-between items-start z-10 pointer-events-none">
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-tertiary-fixed-dim electric-cyan-pulse"></div>
+<span class="font-mono-label text-[12px] text-tertiary tracking-tighter">ENGINE_ACTIVE: NEURAL_REASONING</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface uppercase tracking-tight">AI Optimization Engine</h2>
+</div>
+<div class="flex gap-2">
+<div class="bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant flex items-center gap-2 pointer-events-auto">
+<span class="material-symbols-outlined text-[16px] text-tertiary">analytics</span>
+<span class="font-label-md text-label-md text-secondary uppercase">Optimizing Geometry</span>
+</div>
+</div>
+</div>
+<!-- 3D Scene Placeholder -->
+<div class="flex-1 bg-surface-container-low relative">
+<!-- STITCH_THREEJS_START:ANIMATION_15 class="absolute inset-0 w-full h-full" -->
+<div class="absolute inset-0 w-full h-full" style="display:block;">
+<script src="https://ajax.googleapis.com/ajax/libs/threejs/r125/three.min.js"></script>
+<div id="threejs-container-ANIMATION_15" style="width:100%;height:100%"></div>
+<script>
+(function() {
+  const container = document.getElementById('threejs-container-ANIMATION_15');
+  const devicePixelRatio = window.devicePixelRatio || 1;
+  (function() {
+  const container = document.getElementById('threejs-container-ANIMATION_15');
+  const width = container.clientWidth || window.innerWidth;
+  const height = container.clientHeight || window.innerHeight;
+  
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+  camera.position.z = 6;
+
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  renderer.setSize(width, height);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  container.appendChild(renderer.domElement);
+
+  // Group to hold our "Optimization" visualization
+  const group = new THREE.Group();
+  scene.add(group);
+
+  // Create two beams: "Current" (Steel Blue) and "Optimized" (Electric Cyan)
+  const beamGeom = new THREE.BoxGeometry(4, 0.4, 0.4);
+  
+  const currentMaterial = new THREE.MeshPhongMaterial({ 
+    color: 0x4682B4, 
+    transparent: true, 
+    opacity: 0.4,
+    wireframe: true 
+  });
+  const currentBeam = new THREE.Mesh(beamGeom, currentMaterial);
+  currentBeam.position.y = 0.5;
+  group.add(currentBeam);
+
+  const optimizedMaterial = new THREE.MeshPhongMaterial({ 
+    color: 0x00A8CC, 
+    transparent: true, 
+    opacity: 0.8,
+    wireframe: false 
+  });
+  const optimizedBeam = new THREE.Mesh(beamGeom, optimizedMaterial);
+  optimizedBeam.position.y = -0.5;
+  group.add(optimizedBeam);
+
+  // Particles representing the "AI flow" between them
+  const particlesCount = 300;
+  const particlesGeometry = new THREE.BufferGeometry();
+  const posArray = new Float32Array(particlesCount * 3);
+  
+  for(let i = 0; i < particlesCount * 3; i++) {
+    posArray[i] = (Math.random() - 0.5) * 8;
+  }
+  
+  particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+  const particlesMaterial = new THREE.PointsMaterial({
+    size: 0.04,
+    color: 0x00A8CC,
+    transparent: true,
+    opacity: 0.6
+  });
+  
+  const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+  scene.add(particlesMesh);
+
+  // Lighting
+  const light = new THREE.PointLight(0xffffff, 1, 100);
+  light.position.set(10, 10, 10);
+  scene.add(light);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+  scene.add(ambientLight);
+
+  // Animation loop
+  function animate() {
+    requestAnimationFrame(animate);
+    
+    group.rotation.y += 0.005;
+    particlesMesh.rotation.y -= 0.002;
+    
+    // Pulse the optimized beam to show it's the "target"
+    const scale = 1 + Math.sin(Date.now() * 0.003) * 0.02;
+    optimizedBeam.scale.set(scale, scale, scale);
+    
+    renderer.render(scene, camera);
+  }
+
+  window.addEventListener('resize', () => {
+    const w = container.clientWidth || window.innerWidth;
+    const h = container.clientHeight || window.innerHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  });
+
+  animate();
+})();
+})();
+</script>
+</div>
+<!-- STITCH_THREEJS_END:ANIMATION_15 -->
+<!-- Dynamic UI Overlays -->
+<div class="absolute bottom-6 left-6 right-6 flex justify-between items-end pointer-events-none">
+<div class="bg-on-background/10 backdrop-blur-md border border-white/20 p-4 rounded-xl flex flex-col gap-2">
+<div class="flex justify-between gap-8 items-center">
+<span class="font-label-md text-label-md text-primary">ANALYZING_COST_REDUCTION</span>
+<span class="font-mono-label text-tertiary">84% Complete</span>
+</div>
+<div class="w-full h-1 bg-on-background/10 rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-fixed-dim" style="width: 84%"></div>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="font-mono-label text-[10px] text-outline">SEED_RECURSION: 0.1294</span>
+<span class="font-mono-label text-[10px] text-outline">STIFFNESS_MATRIX: RESOLVED</span>
+</div>
+</div>
+</div>
+<!-- Technical Labels -->
+<div class="absolute top-1/2 left-10 -translate-y-1/2 flex flex-col gap-20 pointer-events-none">
+<div class="flex items-center gap-4">
+<div class="w-12 h-[1px] bg-outline"></div>
+<div class="px-2 py-1 bg-white/80 border border-outline-variant rounded font-mono-label text-[11px]">BASELINE_STATIC</div>
+</div>
+</div>
+<div class="absolute top-1/2 right-10 -translate-y-1/2 flex flex-col gap-20 pointer-events-none">
+<div class="flex items-center gap-4 flex-row-reverse">
+<div class="w-12 h-[1px] bg-tertiary"></div>
+<div class="px-2 py-1 bg-tertiary-container text-white rounded font-mono-label text-[11px]">OPTIMIZED_DYNAMIC</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: Optimized Beam Design -->
+<div class="col-span-3 flex flex-col gap-4">
+<div class="technical-card p-6 flex-1 border-tertiary-container flex flex-col">
+<div class="flex items-center justify-between mb-6">
+<h2 class="font-headline-md text-[18px] text-tertiary flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary">auto_awesome</span>
+                                Recommended
+                            </h2>
+<span class="font-mono-label text-[10px] bg-tertiary-fixed text-tertiary px-2 py-1 rounded">VERIFIED</span>
+</div>
+<div class="relative flex-1 bg-tertiary/5 border border-tertiary/20 rounded-lg p-4 mb-6 overflow-hidden">
+<div class="absolute inset-0 opacity-10 pointer-events-none">
+<div class="w-full h-full" style="background-image: radial-gradient(circle, #007f9b 1px, transparent 1px); background-size: 16px 16px;"></div>
+</div>
+<div class="relative w-full h-full flex flex-col items-center justify-center">
+<!-- Optimized Drawing Simulation -->
+<div class="w-[60%] h-32 border-2 border-tertiary relative bg-white/50">
+<div class="absolute -left-8 top-0 h-full flex flex-col justify-between items-center py-2">
+<div class="w-4 h-[1px] bg-tertiary"></div>
+<div class="h-full w-[1px] bg-tertiary"></div>
+<div class="w-4 h-[1px] bg-tertiary"></div>
+<span class="absolute text-[10px] font-mono-label -left-10 rotate-90 whitespace-nowrap text-tertiary">700mm</span>
+</div>
+<div class="absolute -bottom-8 left-0 w-full flex justify-between items-center px-2">
+<div class="h-4 w-[1px] bg-tertiary"></div>
+<div class="w-full h-[1px] bg-tertiary"></div>
+<div class="h-4 w-[1px] bg-tertiary"></div>
+<span class="absolute text-[10px] font-mono-label bottom-[-18px] left-1/2 -translate-x-1/2 text-tertiary">350mm</span>
+</div>
+<div class="absolute inset-0 flex items-center justify-center opacity-30">
+<span class="material-symbols-outlined text-[48px] text-tertiary">bolt</span>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center border-b border-outline-variant pb-2">
+<span class="text-label-md font-label-md text-secondary">Width</span>
+<div class="flex items-center gap-2">
+<span class="font-mono-label text-outline line-through text-[11px]">400</span>
+<span class="font-mono-label text-tertiary font-bold">350mm</span>
+</div>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant pb-2">
+<span class="text-label-md font-label-md text-secondary">Depth</span>
+<div class="flex items-center gap-2">
+<span class="font-mono-label text-outline line-through text-[11px]">600</span>
+<span class="font-mono-label text-tertiary font-bold">700mm</span>
+</div>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant pb-2">
+<span class="text-label-md font-label-md text-secondary">Steel Grade</span>
+<span class="font-mono-label text-on-surface">500 MPa</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-label-md font-label-md text-secondary">Efficiency</span>
+<span class="font-mono-label text-tertiary font-bold">+18%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Comparison Cards Row -->
+<div class="px-10 pb-24">
+<div class="grid grid-cols-6 gap-4">
+<!-- Card 1 -->
+<div class="technical-card p-4 flex flex-col gap-3">
+<span class="font-label-md text-label-md text-secondary uppercase">Beam Depth</span>
+<div class="flex items-center gap-2">
+<span class="font-mono-label text-outline">600</span>
+<span class="material-symbols-outlined text-[14px] text-outline">arrow_forward</span>
+<span class="font-mono-label text-on-surface text-[18px] font-bold">700mm</span>
+</div>
+<div class="text-[10px] font-mono-label text-tertiary bg-tertiary/10 self-start px-2 py-0.5 rounded">+16.6% Increase</div>
+</div>
+<!-- Card 2 -->
+<div class="technical-card p-4 flex flex-col gap-3">
+<span class="font-label-md text-label-md text-secondary uppercase">Concrete Grade</span>
+<div class="flex items-center gap-2">
+<span class="font-mono-label text-outline">C30</span>
+<span class="material-symbols-outlined text-[14px] text-outline">arrow_forward</span>
+<span class="font-mono-label text-on-surface text-[18px] font-bold">C35</span>
+</div>
+<div class="text-[10px] font-mono-label text-tertiary bg-tertiary/10 self-start px-2 py-0.5 rounded">High Strength</div>
+</div>
+<!-- Card 3 -->
+<div class="technical-card p-4 flex flex-col gap-3">
+<span class="font-label-md text-label-md text-secondary uppercase">Steel Ratio</span>
+<div class="flex items-center gap-2">
+<span class="font-mono-label text-outline">1.2%</span>
+<span class="material-symbols-outlined text-[14px] text-outline">arrow_forward</span>
+<span class="font-mono-label text-on-surface text-[18px] font-bold">1.5%</span>
+</div>
+<div class="text-[10px] font-mono-label text-tertiary bg-tertiary/10 self-start px-2 py-0.5 rounded">Optimized Reinforce</div>
+</div>
+<!-- Card 4: Capacity -->
+<div class="technical-card p-4 flex flex-col gap-3 border-tertiary/40">
+<span class="font-label-md text-label-md text-secondary uppercase">Capacity Imp.</span>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-fixed-dim">trending_up</span>
+<span class="font-headline-md text-headline-md text-tertiary-fixed-dim">+18%</span>
+</div>
+<div class="text-[10px] font-mono-label text-tertiary uppercase">Performance Delta</div>
+</div>
+<!-- Card 5: Cost -->
+<div class="technical-card p-4 flex flex-col gap-3 border-error/20">
+<span class="font-label-md text-label-md text-secondary uppercase">Est. Cost</span>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-error">trending_down</span>
+<span class="font-headline-md text-headline-md text-error">-4.2%</span>
+</div>
+<div class="text-[10px] font-mono-label text-error uppercase">Material Savings</div>
+</div>
+<!-- Card 6: Safety -->
+<div class="technical-card p-4 flex flex-col gap-3 border-tertiary/40">
+<span class="font-label-md text-label-md text-secondary uppercase">Safety Imp.</span>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-fixed-dim">verified_user</span>
+<span class="font-headline-md text-headline-md text-tertiary-fixed-dim">+12%</span>
+</div>
+<div class="text-[10px] font-mono-label text-tertiary uppercase">Structural Margin</div>
+</div>
+</div>
+</div>
+<!-- Bottom Action Bar -->
+<footer class="fixed bottom-0 right-0 left-64 h-20 bg-white border-t border-outline-variant px-10 flex items-center justify-between z-50">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary">info</span>
+<p class="text-body-sm text-secondary">AI recommendations are based on current structural loads and safety factors.</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-6 py-2.5 rounded-lg border border-outline-variant font-label-md text-label-md text-on-surface hover:bg-surface-container-low transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">refresh</span>
+                        Run Again
+                    </button>
+<button class="px-6 py-2.5 rounded-lg border border-outline-variant font-label-md text-label-md text-on-surface hover:bg-surface-container-low transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+                        Modify Recommendation
+                    </button>
+<button class="px-8 py-2.5 rounded-lg bg-primary text-white font-headline-md text-[16px] hover:bg-primary-container transition-all flex items-center gap-2 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+                        Accept Recommendation
+                    </button>
+</div>
+</footer>
+</main>
+</div>
+<script>
+        // Micro-interactions for button clicks
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function() {
+                this.classList.add('scale-95');
+                setTimeout(() => this.classList.remove('scale-95'), 100);
+            });
+        });
+
+        // Simulating AI engine updates
+        const engineLabels = ['OPTIMIZING_GEOMETRY', 'ANALYZING_COST_REDUCTION', 'CALCULATING_STIFFNESS', 'VALIDATING_SAFETY'];
+        const engineProgress = document.querySelector('.bg-tertiary-fixed-dim');
+        const engineText = document.querySelector('.text-primary');
+        
+        let labelIndex = 0;
+        setInterval(() => {
+            labelIndex = (labelIndex + 1) % engineLabels.length;
+            if(engineText) engineText.textContent = engineLabels[labelIndex];
+        }, 3000);
+    </script>
+</body></html>

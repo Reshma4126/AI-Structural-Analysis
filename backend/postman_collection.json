@@ -1,0 +1,189 @@
+{
+    "info": {
+        "name": "Structural AI Decision Support API",
+        "description": "API collection for Authentication, Project Workspace, and Beam Designs.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Authentication",
+            "item": [
+                {
+                    "name": "Register User",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "url": {"raw": "http://localhost:5000/api/auth/register", "host": ["http://localhost:5000"], "path": ["api", "auth", "register"]},
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"Engineer\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Login User",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "url": {"raw": "http://localhost:5000/api/auth/login", "host": ["http://localhost:5000"], "path": ["api", "auth", "login"]},
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get Profile",
+                    "request": {
+                        "method": "GET",
+                        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+                        "url": {"raw": "http://localhost:5000/api/auth/profile", "host": ["http://localhost:5000"], "path": ["api", "auth", "profile"]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Projects",
+            "item": [
+                {
+                    "name": "Create Project",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}, {"key": "Content-Type", "value": "application/json"}],
+                        "url": {"raw": "http://localhost:5000/api/projects", "host": ["http://localhost:5000"], "path": ["api", "projects"]},
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"project_name\": \"Bridge Support Alpha\",\n  \"description\": \"Initial analysis for span 4.\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get Projects",
+                    "request": {
+                        "method": "GET",
+                        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+                        "url": {"raw": "http://localhost:5000/api/projects", "host": ["http://localhost:5000"], "path": ["api", "projects"]}
+                    }
+                },
+                {
+                    "name": "Get Project by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+                        "url": {"raw": "http://localhost:5000/api/projects/1", "host": ["http://localhost:5000"], "path": ["api", "projects", "1"]}
+                    }
+                },
+                {
+                    "name": "Update Project",
+                    "request": {
+                        "method": "PUT",
+                        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}, {"key": "Content-Type", "value": "application/json"}],
+                        "url": {"raw": "http://localhost:5000/api/projects/1", "host": ["http://localhost:5000"], "path": ["api", "projects", "1"]},
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"description\": \"Updated analysis.\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Archive Project",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+                        "url": {"raw": "http://localhost:5000/api/projects/1", "host": ["http://localhost:5000"], "path": ["api", "projects", "1"]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Beam Designs",
+            "item": [
+                {
+                    "name": "Create Beam Design",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}, {"key": "Content-Type", "value": "application/json"}],
+                        "url": {"raw": "http://localhost:5000/api/projects/1/beams", "host": ["http://localhost:5000"], "path": ["api", "projects", "1", "beams"]},
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"beam_name\": \"Main Girder 1\",\n  \"beam_width\": 300,\n  \"beam_depth\": 600,\n  \"beam_length\": 5000,\n  \"concrete_grade\": \"M30\",\n  \"steel_grade\": \"Fe500\",\n  \"cover\": 40,\n  \"number_of_tensile_bars\": 4,\n  \"diameter_tensile_bars\": 20,\n  \"number_of_compression_bars\": 2,\n  \"diameter_compression_bars\": 12,\n  \"stirrup_diameter\": 8,\n  \"stirrup_spacing\": 150,\n  \"loading_type\": \"UDL\",\n  \"applied_load\": 50\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get Beams for Project",
+                    "request": {
+                        "method": "GET",
+                        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+                        "url": {
+                            "raw": "http://localhost:5000/api/projects/1/beams?grade=M30&sort=created_at",
+                            "host": ["http://localhost:5000"],
+                            "path": ["api", "projects", "1", "beams"],
+                            "query": [
+                                {"key": "grade", "value": "M30"},
+                                {"key": "sort", "value": "created_at"}
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Beam by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+                        "url": {"raw": "http://localhost:5000/api/beams/1", "host": ["http://localhost:5000"], "path": ["api", "beams", "1"]}
+                    }
+                },
+                {
+                    "name": "Update Beam Design",
+                    "request": {
+                        "method": "PUT",
+                        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}, {"key": "Content-Type", "value": "application/json"}],
+                        "url": {"raw": "http://localhost:5000/api/beams/1", "host": ["http://localhost:5000"], "path": ["api", "beams", "1"]},
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"beam_name\": \"Main Girder 1 Updated\",\n  \"beam_width\": 300,\n  \"beam_depth\": 600,\n  \"beam_length\": 5000,\n  \"concrete_grade\": \"M30\",\n  \"steel_grade\": \"Fe500\",\n  \"cover\": 40,\n  \"number_of_tensile_bars\": 4,\n  \"diameter_tensile_bars\": 20,\n  \"number_of_compression_bars\": 2,\n  \"diameter_compression_bars\": 12,\n  \"stirrup_diameter\": 8,\n  \"stirrup_spacing\": 150,\n  \"loading_type\": \"Point Load\",\n  \"applied_load\": 100\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Beam Design",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+                        "url": {"raw": "http://localhost:5000/api/beams/1", "host": ["http://localhost:5000"], "path": ["api", "beams", "1"]}
+                    }
+                },
+                {
+                    "name": "Duplicate Beam Design",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+                        "url": {"raw": "http://localhost:5000/api/beams/1/duplicate", "host": ["http://localhost:5000"], "path": ["api", "beams", "1", "duplicate"]}
+                    }
+                },
+                {
+                    "name": "Get Beam Summary",
+                    "request": {
+                        "method": "GET",
+                        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+                        "url": {"raw": "http://localhost:5000/api/beams/1/summary", "host": ["http://localhost:5000"], "path": ["api", "beams", "1", "summary"]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Dashboard",
+            "item": [
+                {
+                    "name": "Get Dashboard Stats",
+                    "request": {
+                        "method": "GET",
+                        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+                        "url": {"raw": "http://localhost:5000/api/dashboard", "host": ["http://localhost:5000"], "path": ["api", "dashboard"]}
+                    }
+                }
+            ]
+        }
+    ]
+}

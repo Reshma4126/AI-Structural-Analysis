@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Structura AI | Engineering Report Generator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800;900&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .blueprint-grid {
+            background-image: 
+                linear-gradient(to right, rgba(28, 96, 144, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(28, 96, 144, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .technical-line {
+            background: linear-gradient(90deg, transparent 0%, #D5DBDB 50%, transparent 100%);
+            height: 1px;
+        }
+        .shadow-soft {
+            box-shadow: 0px 4px 20px rgba(27, 38, 49, 0.05);
+        }
+        @media print {
+            .no-print { display: none; }
+            .print-only { display: block; }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "error": "#ba1a1a",
+                      "on-secondary-fixed-variant": "#424848",
+                      "on-error": "#ffffff",
+                      "on-tertiary-container": "#fafdff",
+                      "on-secondary": "#ffffff",
+                      "on-background": "#111d27",
+                      "surface-container-low": "#edf4ff",
+                      "on-tertiary-fixed": "#001f28",
+                      "on-surface": "#111d27",
+                      "primary-container": "#3c79ab",
+                      "tertiary-fixed": "#b5ebff",
+                      "tertiary": "#00657b",
+                      "surface-container-high": "#dee9f8",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container": "#e3effe",
+                      "secondary-fixed": "#dee4e4",
+                      "on-secondary-fixed": "#171d1d",
+                      "on-tertiary-fixed-variant": "#004e60",
+                      "inverse-surface": "#26313d",
+                      "secondary-fixed-dim": "#c2c8c8",
+                      "error-container": "#ffdad6",
+                      "surface-dim": "#d0dbea",
+                      "primary-fixed": "#cee5ff",
+                      "tertiary-fixed-dim": "#58d5fb",
+                      "surface-tint": "#206393",
+                      "primary": "#1c6090",
+                      "on-primary-fixed": "#001d32",
+                      "inverse-on-surface": "#e8f2ff",
+                      "on-primary": "#ffffff",
+                      "tertiary-container": "#007f9b",
+                      "surface-bright": "#f7f9ff",
+                      "secondary": "#596060",
+                      "outline-variant": "#c1c7d0",
+                      "on-surface-variant": "#41474f",
+                      "secondary-container": "#dee4e4",
+                      "on-primary-container": "#fdfcff",
+                      "primary-fixed-dim": "#96ccff",
+                      "inverse-primary": "#96ccff",
+                      "on-secondary-container": "#5f6666",
+                      "on-error-container": "#93000a",
+                      "surface-container-highest": "#d8e4f3",
+                      "outline": "#717880",
+                      "background": "#f7f9ff",
+                      "surface": "#f7f9ff",
+                      "surface-variant": "#d8e4f3",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-fixed-variant": "#004a75"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-tablet": "24px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "40px",
+                      "gutter": "24px",
+                      "container-max-width": "1440px",
+                      "unit": "4px"
+              },
+              "fontFamily": {
+                      "body-md": ["inter"],
+                      "mono-label": ["jetbrainsMono"],
+                      "headline-lg": ["manrope"],
+                      "body-lg": ["inter"],
+                      "label-md": ["inter"],
+                      "headline-md": ["manrope"],
+                      "body-sm": ["inter"],
+                      "display-lg": ["manrope"]
+              },
+              "fontSize": {
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "mono-label": ["13px", {"lineHeight": "18px", "fontWeight": "500"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface font-body-md overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="bg-surface-container-lowest dark:bg-inverse-surface h-screen w-64 fixed left-0 top-0 overflow-y-auto border-r border-outline-variant dark:border-outline flex flex-col py-6 no-print">
+<div class="px-6 mb-8">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Structura AI</h1>
+<p class="text-label-md font-label-md text-outline">Enterprise Pro</p>
+</div>
+<nav class="flex-1 space-y-1">
+<div class="flex items-center gap-3 px-6 py-2 text-on-surface-variant hover:bg-surface-container transition-colors duration-200 cursor-pointer">
+<span class="material-symbols-outlined">folder_open</span>
+<span class="font-label-md">Projects</span>
+</div>
+<div class="flex items-center gap-3 px-6 py-2 text-on-surface-variant hover:bg-surface-container transition-colors duration-200 cursor-pointer">
+<span class="material-symbols-outlined">architecture</span>
+<span class="font-label-md">Beam Designs</span>
+</div>
+<div class="flex items-center gap-3 px-6 py-2 text-primary bg-primary-container/10 border-r-2 border-primary cursor-pointer">
+<span class="material-symbols-outlined">assessment</span>
+<span class="font-label-md">Reports</span>
+</div>
+<div class="flex items-center gap-3 px-6 py-2 text-on-surface-variant hover:bg-surface-container transition-colors duration-200 cursor-pointer">
+<span class="material-symbols-outlined">database</span>
+<span class="font-label-md">Datasets</span>
+</div>
+<div class="flex items-center gap-3 px-6 py-2 text-on-surface-variant hover:bg-surface-container transition-colors duration-200 cursor-pointer">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md">Settings</span>
+</div>
+</nav>
+<div class="px-6 mt-auto">
+<button class="w-full bg-primary text-on-primary py-2 px-4 rounded-lg font-label-md flex items-center justify-center gap-2 hover:brightness-110 transition-all active:scale-95">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                New Project
+            </button>
+<div class="mt-4 flex items-center gap-3 px-0 py-2 text-on-surface-variant hover:text-primary cursor-pointer transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+<span class="font-label-md">Help Center</span>
+</div>
+</div>
+</aside>
+<!-- Header -->
+<header class="fixed top-0 right-0 left-64 h-16 z-30 bg-surface border-b border-outline-variant flex justify-between items-center px-8 no-print">
+<div class="flex items-center gap-4">
+<h2 class="font-headline-md text-[20px] font-black tracking-tight text-on-surface">Reports / Analysis_0942_Beam.pdf</h2>
+<span class="bg-tertiary-container/10 text-tertiary-container px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">AI Verified</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors">history</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors">help</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a middle-aged female structural engineer in a minimalist modern office setting. She has a confident and authoritative expression, wearing professional attire. The lighting is soft and high-key, reflecting a high-end enterprise environment with neutral tones and clean lines." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZ8ucY-AgcssTolb-yHS9MzlaaZN-u_f7FUX74Pytx9aZKIFJh4MNan6QYKJwmBKHZjakPVhKQcwBIkT97TjAgyUqyrj-b_Z-US15ew6axXXEyRMSoyON01r_C-VuM3Or0wl7-tz6ZrEGD5qauIiOEP-UYCnLbcFAcMy5m7eZs3HS4HO0Ziuv058hz5XasRBrQisNDaQNvzBNqWwSLMfQQ7_iJ2uzetp_zFrVAUwnq6IN7KbeBRD4YWw"/>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-64 mt-16 h-[calc(100vh-64px)] overflow-hidden flex flex-col bg-[#F8F9F9] blueprint-grid">
+<div class="flex-1 flex overflow-hidden">
+<!-- PDF Viewer Space -->
+<div class="flex-1 overflow-y-auto p-12 flex justify-center">
+<!-- Mock PDF Page -->
+<article class="bg-white w-[800px] min-h-[1131px] shadow-soft border border-outline-variant p-16 relative">
+<!-- Page Technical Header -->
+<div class="flex justify-between items-start border-b border-outline pb-8 mb-12">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<div class="w-8 h-8 bg-primary flex items-center justify-center rounded-sm">
+<span class="material-symbols-outlined text-white text-[20px]">architecture</span>
+</div>
+<span class="font-headline-md text-xl font-bold tracking-tighter">STRUCTURA AI</span>
+</div>
+<p class="font-mono-label text-[10px] text-outline uppercase tracking-[0.2em]">Structural Verification Report v4.2</p>
+</div>
+<div class="text-right">
+<p class="font-label-md text-on-surface">Doc ID: #ENG-2024-0042</p>
+<p class="font-label-md text-outline">Date: October 24, 2024</p>
+</div>
+</div>
+<!-- Project Info -->
+<section class="mb-10">
+<h3 class="font-headline-md text-lg mb-4 text-primary border-l-4 border-primary pl-4">1.0 Project Information</h3>
+<div class="grid grid-cols-2 gap-8 bg-surface p-6 rounded-lg border border-outline-variant/50">
+<div>
+<p class="text-label-md text-outline uppercase font-bold mb-1">Project Name</p>
+<p class="font-body-md font-semibold">Skyline Plaza - Phase II</p>
+</div>
+<div>
+<p class="text-label-md text-outline uppercase font-bold mb-1">Lead Consultant</p>
+<p class="font-body-md font-semibold text-primary">Dr. Elena Volkov</p>
+</div>
+</div>
+</section>
+<!-- Input Parameters -->
+<section class="mb-10">
+<h3 class="font-headline-md text-lg mb-4 text-primary border-l-4 border-primary pl-4">2.0 Input Parameters (Beam Geometry)</h3>
+<div class="grid grid-cols-3 gap-4 mb-6">
+<div class="border border-outline-variant p-4 rounded bg-[#fcfcfc]">
+<p class="text-label-md text-outline">Span Length</p>
+<p class="font-mono-label text-xl">12.45m</p>
+</div>
+<div class="border border-outline-variant p-4 rounded bg-[#fcfcfc]">
+<p class="text-label-md text-outline">Section Depth</p>
+<p class="font-mono-label text-xl">650mm</p>
+</div>
+<div class="border border-outline-variant p-4 rounded bg-[#fcfcfc]">
+<p class="text-label-md text-outline">Load Case</p>
+<p class="font-mono-label text-xl">1.2D + 1.6L</p>
+</div>
+</div>
+<div class="aspect-video bg-surface-container rounded-xl overflow-hidden border border-outline-variant relative flex items-center justify-center">
+<img class="w-full h-full object-cover mix-blend-multiply opacity-80" data-alt="A highly precise architectural technical drawing of a reinforced concrete beam section. The drawing uses crisp dark blue lines on a faint blueprint grid background. It includes detailed callouts for rebar placement, stirrups, and dimensions. The aesthetic is clean, professional, and technical, resembling a CAD export." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJGiblJh9KUPUEnV3T0lBkhuK14gejzC6scICwK_AyA_lGrxRDiAvcsP0PRP-YNQVTsikQe09c6zDn-s9rCS06UDnOM7nsVxB_4w025RybhgH88tVb2KbDgP3sTit-o0U2iiSFxEZaZRcNyxVH2_B3ZZXMZr4F1Z736rbZRRnXDHic0zcNzIVb95xyQSNaiP5jtqmzK98-Wirwz_OcRc8TboXvq7X4Yezy98OWp-XCWG59GYeebiBmWA"/>
+<div class="absolute inset-0 blueprint-grid pointer-events-none"></div>
+</div>
+</section>
+<!-- AI Predictions -->
+<section class="mb-10">
+<h3 class="font-headline-md text-lg mb-4 text-primary border-l-4 border-primary pl-4">3.0 AI Predictive Analysis</h3>
+<div class="space-y-4">
+<div class="flex items-center gap-4 p-4 rounded-lg bg-surface border-l-4 border-tertiary">
+<span class="material-symbols-outlined text-tertiary">psychology</span>
+<div class="flex-1">
+<p class="font-label-md text-on-surface-variant">Neural Stress Simulation</p>
+<div class="w-full bg-outline-variant/30 h-1.5 rounded-full mt-2">
+<div class="bg-tertiary h-full rounded-full" style="width: 82%"></div>
+</div>
+</div>
+<span class="font-mono-label text-lg">82% Efficiency</span>
+</div>
+<p class="text-body-sm text-on-surface-variant leading-relaxed">
+                                The Structura Engine has analyzed over 40,000 similar load cases. Predictive deflection models suggest a variance of ±0.04mm under peak cyclic loading conditions.
+                            </p>
+</div>
+</section>
+<!-- Structural Evaluation -->
+<section class="mb-10">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-headline-md text-lg text-primary border-l-4 border-primary pl-4">4.0 Structural Evaluation</h3>
+<span class="px-3 py-1 bg-[#E8F5E9] text-[#2E7D32] rounded text-[10px] font-bold border border-[#2E7D32]/20">COMPLIANT</span>
+</div>
+<table class="w-full text-left text-sm border-collapse">
+<thead class="bg-surface text-outline border-y border-outline-variant">
+<tr>
+<th class="py-3 px-4 font-label-md">Attribute</th>
+<th class="py-3 px-4 font-label-md">Value</th>
+<th class="py-3 px-4 font-label-md">Limit</th>
+<th class="py-3 px-4 font-label-md">Status</th>
+</tr>
+</thead>
+<tbody class="text-on-surface">
+<tr class="border-b border-outline-variant/30">
+<td class="py-3 px-4">Shear Resistance</td>
+<td class="py-3 px-4 font-mono-label text-xs">452.1 kN</td>
+<td class="py-3 px-4 font-mono-label text-xs">500.0 kN</td>
+<td class="py-3 px-4"><span class="text-tertiary material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span></td>
+</tr>
+<tr class="border-b border-outline-variant/30">
+<td class="py-3 px-4">Moment Capacity</td>
+<td class="py-3 px-4 font-mono-label text-xs">890.5 kNm</td>
+<td class="py-3 px-4 font-mono-label text-xs">1120 kNm</td>
+<td class="py-3 px-4"><span class="text-tertiary material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span></td>
+</tr>
+</tbody>
+</table>
+</section>
+<!-- Explainable AI -->
+<section class="mb-10 bg-primary/5 p-6 rounded-xl border border-primary/20">
+<h4 class="font-label-md text-primary uppercase font-bold mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+                            Explainable AI Analysis
+                        </h4>
+<p class="text-body-sm text-on-surface-variant italic leading-relaxed">
+                            "Recommendation is weighted primarily by Shear Reinforcement ratio (0.42) and Conc. Compressive Strength (0.31). The model identifies a 4% risk reduction if longitudinal bar spacing is adjusted to 150mm O.C."
+                        </p>
+</section>
+<!-- Recommendations -->
+<section>
+<h3 class="font-headline-md text-lg mb-4 text-primary border-l-4 border-primary pl-4">5.0 Recommendations</h3>
+<ul class="space-y-2 text-body-sm list-disc pl-5 text-on-surface-variant">
+<li>Proceed with C40/50 grade concrete mix.</li>
+<li>Ensure vibrating duration exceeds 120s per segment to prevent honeycombing.</li>
+<li>Secondary reinforcement required at mid-span support nodes.</li>
+</ul>
+</section>
+<div class="mt-16 pt-8 border-t border-outline-variant flex justify-between">
+<p class="text-[10px] text-outline uppercase tracking-widest">Page 1 of 12 — Generated by Structura Enterprise</p>
+<div class="text-[10px] text-outline text-right">
+                            STRUCTURA.AI/VERIFY/882-11
+                        </div>
+</div>
+</article>
+</div>
+<!-- Right Controls Sidebar -->
+<aside class="w-80 bg-white border-l border-outline-variant p-8 flex flex-col no-print">
+<div class="mb-10">
+<h4 class="font-label-md text-on-surface uppercase font-bold mb-4 tracking-wider">Export Options</h4>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex flex-col items-center justify-center p-4 border border-outline-variant rounded-xl hover:border-primary hover:bg-primary/5 transition-all group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary mb-2">picture_as_pdf</span>
+<span class="font-label-md">PDF</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 border border-outline-variant rounded-xl hover:border-primary hover:bg-primary/5 transition-all group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary mb-2">table_chart</span>
+<span class="font-label-md">Excel</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 border border-outline-variant rounded-xl hover:border-primary hover:bg-primary/5 transition-all group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary mb-2">csv</span>
+<span class="font-label-md">CSV</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 border border-outline-variant rounded-xl hover:border-primary hover:bg-primary/5 transition-all group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary mb-2">print</span>
+<span class="font-label-md">Print</span>
+</button>
+</div>
+</div>
+<div class="mb-10">
+<h4 class="font-label-md text-on-surface uppercase font-bold mb-4 tracking-wider">Digital Signature</h4>
+<div class="border-2 border-dashed border-outline-variant p-6 rounded-xl flex flex-col items-center bg-[#FDFDFD]">
+<img class="w-32 opacity-50 grayscale hover:grayscale-0 transition-all cursor-pointer" data-alt="A clean, minimalist digital signature on a white background. The signature is elegant, written in a smooth black ink style. Below the signature, the name 'Dr. Elena Volkov' is typed in a small, modern sans-serif font. The image feels professional and secure, intended for an engineering document's authentication section." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAST0eI8NYvAZjtqNF9WbzCGzSOkGzOpzwHtXLuxbOJMAy14952Y5YsuRVeyapaK5VjtXiqQc2vy_7bgdDE9IqqAKPXJP2SenpaPCp18AscZonrXiXy7RZIpvMPUsmLI6XUBdZ3iI6xqoLgUAd6xJqjZYDBA97thBguHPuLBniQs6CAHfDhJiQmxmt74dUYZdKtwaRMQzn8ay52k0qVOfiLiNaBt22lwbmUYkDUqsZN9GqmDAVYLK4dUA"/>
+<p class="mt-4 font-mono-label text-[10px] text-outline text-center">Verified by Structura eSign™<br/>Oct 24, 2024 14:22 GMT</p>
+</div>
+</div>
+<div class="mt-auto">
+<div class="p-6 bg-surface-container-low rounded-xl border border-outline-variant/30 flex flex-col items-center">
+<div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4 border border-outline-variant">
+<span class="material-symbols-outlined text-primary text-3xl">token</span>
+</div>
+<p class="font-headline-md text-sm font-bold text-on-surface">Organizational Unit</p>
+<p class="text-xs text-outline">Central Engineering Division</p>
+</div>
+</div>
+</aside>
+</div>
+<!-- Bottom Action Bar -->
+<footer class="h-20 bg-white border-t border-outline-variant flex items-center justify-between px-12 no-print">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-[#4CAF50]"></span>
+<span class="text-sm font-label-md text-on-surface-variant">Systems Operational</span>
+</div>
+<div class="h-4 w-px bg-outline-variant"></div>
+<div class="text-sm text-outline font-label-md">Last autosave 2 min ago</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="px-6 py-2 rounded-lg border border-outline-variant font-label-md text-on-surface-variant hover:bg-surface transition-colors active:scale-95">
+                    Preview
+                </button>
+<button class="px-6 py-2 rounded-lg border border-outline-variant font-label-md text-on-surface-variant flex items-center gap-2 hover:bg-surface transition-colors active:scale-95">
+<span class="material-symbols-outlined text-[18px]">share</span>
+                    Share
+                </button>
+<button class="px-8 py-2 rounded-lg bg-primary text-on-primary font-label-md flex items-center gap-2 hover:brightness-110 shadow-lg shadow-primary/20 transition-all active:scale-95">
+<span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+                    Generate Report
+                </button>
+</div>
+</footer>
+</main>
+<!-- Overlay Grid Interaction Simulation -->
+<script>
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) * 100;
+            const y = (e.clientY / window.innerHeight) * 100;
+            // Technical atmosphere micro-interaction
+        });
+
+        // Simple export trigger
+        const printBtn = document.querySelector('button span[innerHTML="print"]').parentElement;
+        printBtn.addEventListener('click', () => {
+            window.print();
+        });
+    </script>
+</body></html>

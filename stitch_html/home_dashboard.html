@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Structura AI | Dashboard</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#edf4ff",
+                    "on-primary": "#ffffff",
+                    "secondary-container": "#dee4e4",
+                    "on-tertiary-fixed-variant": "#004e60",
+                    "surface-bright": "#f7f9ff",
+                    "outline-variant": "#c1c7d0",
+                    "on-surface-variant": "#41474f",
+                    "on-secondary": "#ffffff",
+                    "secondary-fixed": "#dee4e4",
+                    "on-error": "#ffffff",
+                    "surface-dim": "#d0dbea",
+                    "on-tertiary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "surface-container-highest": "#d8e4f3",
+                    "on-tertiary-fixed": "#001f28",
+                    "error-container": "#ffdad6",
+                    "on-primary-container": "#fdfcff",
+                    "tertiary-fixed-dim": "#58d5fb",
+                    "tertiary-fixed": "#b5ebff",
+                    "tertiary": "#00657b",
+                    "on-background": "#111d27",
+                    "on-secondary-container": "#5f6666",
+                    "tertiary-container": "#007f9b",
+                    "surface": "#f7f9ff",
+                    "primary-fixed-dim": "#96ccff",
+                    "on-tertiary-container": "#fafdff",
+                    "on-secondary-fixed": "#171d1d",
+                    "surface-variant": "#d8e4f3",
+                    "surface-container": "#e3effe",
+                    "outline": "#717880",
+                    "primary-container": "#3c79ab",
+                    "on-primary-fixed-variant": "#004a75",
+                    "on-surface": "#111d27",
+                    "on-primary-fixed": "#001d32",
+                    "inverse-on-surface": "#e8f2ff",
+                    "secondary-fixed-dim": "#c2c8c8",
+                    "on-error-container": "#93000a",
+                    "surface-tint": "#206393",
+                    "inverse-primary": "#96ccff",
+                    "secondary": "#596060",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-fixed-variant": "#424848",
+                    "primary-fixed": "#cee5ff",
+                    "primary": "#1c6090",
+                    "inverse-surface": "#26313d",
+                    "background": "#f7f9ff",
+                    "surface-container-high": "#dee9f8"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "xxl": "20px",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-tablet": "24px",
+                    "margin-desktop": "40px",
+                    "gutter": "24px",
+                    "unit": "4px",
+                    "margin-mobile": "16px",
+                    "container-max-width": "1440px"
+            },
+            "fontFamily": {
+                    "headline-md": ["manrope"],
+                    "body-md": ["inter"],
+                    "display-lg": ["manrope"],
+                    "mono-label": ["jetbrainsMono"],
+                    "body-sm": ["inter"],
+                    "label-md": ["inter"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .blueprint-grid {
+            background-size: 40px 40px;
+            background-image:
+                linear-gradient(to right, rgba(113, 120, 128, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(113, 120, 128, 0.05) 1px, transparent 1px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .technical-line {
+            background: linear-gradient(90deg, transparent, rgba(60, 121, 171, 0.4) 20%, rgba(60, 121, 171, 0.4) 80%, transparent);
+        }
+        .node-dot {
+            box-shadow: 0 0 0 4px rgba(60, 121, 171, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background font-body-md text-on-surface selection:bg-primary-fixed-dim">
+<!-- SideNavBar Anchor -->
+<aside class="h-screen w-72 flex flex-col fixed left-0 top-0 bg-surface-container-lowest border-r border-outline-variant z-50 overflow-y-auto">
+<div class="flex flex-col h-full p-6">
+<!-- Brand Logo -->
+<div class="flex items-center gap-3 mb-10 px-2">
+<div class="w-10 h-10 bg-primary flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">architecture</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface leading-tight">Structura AI</h1>
+<p class="text-[11px] uppercase tracking-widest text-outline font-bold">Precision Engineering</p>
+</div>
+</div>
+<!-- CTA -->
+<button class="mb-8 w-full py-3 px-4 bg-primary text-on-primary rounded-lg font-semibold flex items-center justify-center gap-2 transition-all hover:brightness-110 active:scale-[0.98]">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span>New Calculation</span>
+</button>
+<!-- Navigation Links -->
+<nav class="space-y-2 flex-grow">
+<!-- Projects Active -->
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-semibold transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">folder_open</span>
+<span>Projects</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">architecture</span>
+<span>Beam Designs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span>AI Analysis</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span>Evaluation</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">tips_and_updates</span>
+<span>Recommendations</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">visibility</span>
+<span>Explainable AI</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">description</span>
+<span>Reports</span>
+</a>
+</nav>
+<!-- Bottom Profile -->
+<div class="pt-6 mt-auto border-t border-outline-variant flex items-center gap-3 px-2">
+<img class="w-10 h-10 rounded-full border border-outline-variant object-cover" data-alt="A professional headshot of a senior structural engineer wearing a navy blue blazer, looking confident and focused. High-key professional lighting, neutral grey background, crisp corporate photography style with a slight depth of field." src="https://lh3.googleusercontent.com/aida-public/AB6AXuApRGzzTvR_I-PRF-gB284gRojPhWrT0xvE02qhnbOsQ4NlUpEU4LLLaROWTl-f6Poi9xp_8Fh2Ui9GebRPmHo7SgHNJqp8mnvIWsvlQOehE-H-npbmg2gGnTwy98iTYPdfaV3fuVTcCUf1aiPrMFzIZ_y2_s8K9rMyH4LSeai0G6LZswX2LkXDB0DJFednLzJu0qlcfdfR_KrihC2rVTA9Tmpf4QLef40FgNbgVpKRA1Hs69WUN9qj3g"/>
+<div class="overflow-hidden">
+<p class="font-semibold text-sm truncate">Marcus Chen</p>
+<p class="text-xs text-outline truncate">Principal Engineer</p>
+</div>
+<button class="ml-auto text-outline hover:text-on-surface">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-72 min-h-screen relative overflow-hidden blueprint-grid">
+<!-- TopAppBar Anchor -->
+<header class="h-16 w-[calc(100%-18rem)] fixed top-0 z-40 bg-surface-container-lowest/80 backdrop-blur-md flex justify-between items-center px-10 transition-opacity duration-150">
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-xl transition-colors group-focus-within:text-primary">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-full text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all w-80" placeholder="Search projects, beams, or analyses..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface-container-lowest"></span>
+</button>
+<div class="h-6 w-[1px] bg-outline-variant"></div>
+<div class="flex items-center gap-2">
+<span class="text-body-sm font-semibold">Workspace: London HQ</span>
+<span class="material-symbols-outlined text-outline">expand_more</span>
+</div>
+</div>
+</header>
+<div class="pt-24 pb-20 px-10 max-w-7xl mx-auto space-y-10">
+<!-- Hero Section -->
+<section class="relative">
+<div class="grid grid-cols-1 md:grid-cols-2 items-center gap-10">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-surface tracking-tight mb-2">Welcome back, <span class="text-primary">Engineer.</span></h2>
+<p class="text-body-lg text-on-surface-variant mb-8">Continue making safer and smarter structural decisions with AI-augmented analysis and precision modeling.</p>
+<!-- KPI Row -->
+<div class="flex flex-wrap gap-4">
+<div class="bg-surface-container-lowest border border-outline-variant p-4 rounded-xl min-w-[120px]">
+<p class="text-label-md text-outline mb-1">PROJECTS</p>
+<p class="text-headline-md font-bold text-on-surface">24</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-4 rounded-xl min-w-[120px]">
+<p class="text-label-md text-outline mb-1">BEAM DESIGNS</p>
+<p class="text-headline-md font-bold text-on-surface">142</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-4 rounded-xl min-w-[120px]">
+<p class="text-label-md text-outline mb-1">AI ANALYSES</p>
+<p class="text-headline-md font-bold text-on-surface">89</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-4 rounded-xl min-w-[120px]">
+<p class="text-label-md text-outline mb-1">REPORTS</p>
+<p class="text-headline-md font-bold text-on-surface">12</p>
+</div>
+<div class="bg-primary-container p-4 rounded-xl min-w-[120px] text-on-primary-container shadow-sm">
+<p class="text-label-md opacity-80 mb-1">SAFETY SCORE</p>
+<div class="flex items-baseline gap-1">
+<p class="text-headline-md font-bold">91%</p>
+<span class="material-symbols-outlined text-[16px]">verified</span>
+</div>
+</div>
+</div>
+</div>
+<div class="hidden md:block relative h-64 rounded-xxl overflow-hidden border border-outline-variant shadow-lg">
+<img class="w-full h-full object-cover" data-alt="A sophisticated architectural visualization showing a cross-section of a high-tech modern skyscraper. The image is rendered in a minimalist, blueprint-like aesthetic with clean white and steel blue lines. Detailed structural nodes, reinforced concrete beams, and technical data overlays are visible against a bright, airy background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgXPKiTUiEqsrm_FjSdq2sI4mJw_ipC1i68W0Csk4rTGp3lwNcizhG3uRGoVXVD0SYKx7aGKi5OP9u4tpVShhiF1napVHtSe_yKJrHlNoU-whTxjSZrsoNds2QZP2c--BGJQWuGcP9JTp4GyG9Y73tGBs5okCs2EjSWBaIwRS2-jBZxeXYGWJbm36Kp_IjmWc7nzv2vyXCHZQiE1tcEmUob2xkss93H5Fccmp_pGiziiXJkbtzIHSC5g"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+<div class="absolute bottom-4 left-4 right-4 flex justify-between items-center">
+<span class="px-3 py-1 bg-surface-container-lowest/90 backdrop-blur rounded-full text-[10px] font-bold text-primary tracking-widest uppercase">Live View: Tower D-12 Analysis</span>
+<span class="w-3 h-3 bg-tertiary rounded-full animate-pulse"></span>
+</div>
+</div>
+</div>
+</section>
+<!-- Workflow Visualization -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xxl p-8 shadow-sm">
+<div class="flex items-center justify-between mb-10">
+<h3 class="font-headline-md text-headline-md">Integrated Workflow</h3>
+<div class="flex items-center gap-2 text-primary font-semibold text-sm cursor-pointer group">
+<span>Full Process Details</span>
+<span class="material-symbols-outlined transition-transform group-hover:translate-x-1">arrow_forward</span>
+</div>
+</div>
+<div class="relative">
+<!-- The connecting line -->
+<div class="absolute top-[22px] left-8 right-8 h-[2px] technical-line z-0"></div>
+<div class="flex justify-between relative z-10">
+<!-- Step 1 -->
+<div class="flex flex-col items-center gap-3 w-32 group">
+<div class="w-11 h-11 rounded-full bg-surface border-2 border-outline-variant flex items-center justify-center node-dot transition-all group-hover:border-primary group-hover:bg-primary group-hover:text-white">
+<span class="material-symbols-outlined text-[20px]">folder</span>
+</div>
+<span class="text-center text-[13px] font-bold text-on-surface leading-tight">Project</span>
+</div>
+<!-- Step 2 -->
+<div class="flex flex-col items-center gap-3 w-32 group">
+<div class="w-11 h-11 rounded-full bg-surface border-2 border-outline-variant flex items-center justify-center node-dot transition-all group-hover:border-primary group-hover:bg-primary group-hover:text-white">
+<span class="material-symbols-outlined text-[20px]">architecture</span>
+</div>
+<span class="text-center text-[13px] font-bold text-on-surface leading-tight">Beam Design</span>
+</div>
+<!-- Step 3 -->
+<div class="flex flex-col items-center gap-3 w-32 group">
+<div class="w-11 h-11 rounded-full bg-surface border-2 border-outline-variant flex items-center justify-center node-dot transition-all group-hover:border-primary group-hover:bg-primary group-hover:text-white">
+<span class="material-symbols-outlined text-[20px]">psychology</span>
+</div>
+<span class="text-center text-[13px] font-bold text-on-surface leading-tight">AI Analysis</span>
+</div>
+<!-- Step 4 -->
+<div class="flex flex-col items-center gap-3 w-32 group">
+<div class="w-11 h-11 rounded-full bg-primary border-2 border-primary text-white flex items-center justify-center node-dot transition-all">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">rate_review</span>
+</div>
+<span class="text-center text-[13px] font-bold text-primary leading-tight">Engineering Review</span>
+</div>
+<!-- Step 5 -->
+<div class="flex flex-col items-center gap-3 w-32 group">
+<div class="w-11 h-11 rounded-full bg-surface border-2 border-outline-variant flex items-center justify-center node-dot transition-all group-hover:border-primary group-hover:bg-primary group-hover:text-white">
+<span class="material-symbols-outlined text-[20px]">tips_and_updates</span>
+</div>
+<span class="text-center text-[13px] font-bold text-on-surface leading-tight">Recommendations</span>
+</div>
+<!-- Step 6 -->
+<div class="flex flex-col items-center gap-3 w-32 group">
+<div class="w-11 h-11 rounded-full bg-surface border-2 border-outline-variant flex items-center justify-center node-dot transition-all group-hover:border-primary group-hover:bg-primary group-hover:text-white">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</div>
+<span class="text-center text-[13px] font-bold text-on-surface leading-tight">Explainable AI</span>
+</div>
+<!-- Step 7 -->
+<div class="flex flex-col items-center gap-3 w-32 group">
+<div class="w-11 h-11 rounded-full bg-surface border-2 border-outline-variant flex items-center justify-center node-dot transition-all group-hover:border-primary group-hover:bg-primary group-hover:text-white">
+<span class="material-symbols-outlined text-[20px]">description</span>
+</div>
+<span class="text-center text-[13px] font-bold text-on-surface leading-tight">Engineering Report</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Left Column (Span 2) -->
+<div class="lg:col-span-2 space-y-8">
+<!-- Recent Projects -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xxl overflow-hidden shadow-sm">
+<div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center">
+<h4 class="font-semibold text-lg">Recent Projects</h4>
+<button class="text-primary text-sm font-medium hover:underline">View all</button>
+</div>
+<div class="divide-y divide-outline-variant">
+<!-- Project 1 -->
+<div class="p-4 flex items-center justify-between hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-surface rounded-lg flex items-center justify-center border border-outline-variant group-hover:border-primary/30 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">apartment</span>
+</div>
+<div>
+<p class="font-bold text-sm">Skyline Residency II</p>
+<p class="text-xs text-outline">Updated 2h ago by J. Doe</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="px-2 py-0.5 bg-tertiary/10 text-tertiary text-[10px] font-bold uppercase tracking-wider rounded">In Review</span>
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary">more_vert</span>
+</div>
+</div>
+<!-- Project 2 -->
+<div class="p-4 flex items-center justify-between hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-surface rounded-lg flex items-center justify-center border border-outline-variant group-hover:border-primary/30 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">engineering</span>
+</div>
+<div>
+<p class="font-bold text-sm">Bridge Delta-9 Refactoring</p>
+<p class="text-xs text-outline">Updated 5h ago by M. Chen</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider rounded">Optimizing</span>
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary">more_vert</span>
+</div>
+</div>
+<!-- Project 3 -->
+<div class="p-4 flex items-center justify-between hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-surface rounded-lg flex items-center justify-center border border-outline-variant group-hover:border-primary/30 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">factory</span>
+</div>
+<div>
+<p class="font-bold text-sm">Industrial Hub - Phase A</p>
+<p class="text-xs text-outline">Updated 1d ago by AI Engine</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="px-2 py-0.5 bg-outline-variant/20 text-outline text-[10px] font-bold uppercase tracking-wider rounded">Completed</span>
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary">more_vert</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Analyses -->
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<h4 class="font-semibold text-lg">Critical Analyses</h4>
+<button class="text-primary text-sm font-medium hover:underline">Full Analytics</button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<!-- Analysis Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant p-5 rounded-xxl shadow-sm flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div class="w-10 h-10 rounded-lg bg-tertiary-container/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary">analytics</span>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold text-outline tracking-wider uppercase">Health Score</p>
+<p class="text-lg font-bold text-tertiary">98/100</p>
+</div>
+</div>
+<div>
+<h5 class="font-bold text-sm">Lateral Load Test #402</h5>
+<p class="text-xs text-on-surface-variant">Beam Section: S-22 Main Atrium</p>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant flex justify-between items-center">
+<span class="text-[11px] text-outline">Confidence: High</span>
+<button class="text-xs font-bold text-primary flex items-center gap-1">Detail <span class="material-symbols-outlined text-sm">open_in_new</span></button>
+</div>
+</div>
+<!-- Analysis Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant p-5 rounded-xxl shadow-sm flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div class="w-10 h-10 rounded-lg bg-error-container/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-error">warning</span>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold text-outline tracking-wider uppercase">Health Score</p>
+<p class="text-lg font-bold text-error">72/100</p>
+</div>
+</div>
+<div>
+<h5 class="font-bold text-sm">Seismic Simulation V.2</h5>
+<p class="text-xs text-on-surface-variant">Basement Foundation B-1</p>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant flex justify-between items-center">
+<span class="text-[11px] text-outline">Manual Review Required</span>
+<button class="text-xs font-bold text-primary flex items-center gap-1">Review <span class="material-symbols-outlined text-sm">open_in_new</span></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column -->
+<div class="space-y-8">
+<!-- Model Performance (Gauge Simulation) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xxl p-6 shadow-sm">
+<h4 class="font-semibold text-lg mb-6">Model Performance</h4>
+<div class="flex flex-col items-center">
+<div class="relative w-40 h-20 overflow-hidden">
+<div class="absolute top-0 left-0 w-40 h-40 border-[12px] border-surface-container-high rounded-full"></div>
+<div class="absolute top-0 left-0 w-40 h-40 border-[12px] border-primary rounded-full" style="clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%); transform: rotate(145deg);"></div>
+<div class="absolute bottom-0 left-1/2 -translate-x-1/2 text-center">
+<p class="text-2xl font-bold leading-none">94.8%</p>
+</div>
+</div>
+<p class="text-[11px] font-bold text-outline tracking-widest uppercase mt-4">AI PRECISION RATE</p>
+<p class="text-xs text-on-surface-variant mt-2 text-center px-4">Based on 12,000+ verified engineering decisions last month.</p>
+</div>
+</div>
+<!-- Notifications Feed -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xxl overflow-hidden shadow-sm">
+<div class="px-6 py-4 border-b border-outline-variant">
+<h4 class="font-semibold text-lg">Notifications</h4>
+</div>
+<div class="max-h-64 overflow-y-auto">
+<div class="p-4 border-b border-outline-variant/50 flex gap-3 hover:bg-surface transition-colors cursor-pointer">
+<div class="w-2 h-2 mt-1.5 rounded-full bg-primary shrink-0"></div>
+<div>
+<p class="text-sm font-semibold">Report Generated</p>
+<p class="text-xs text-on-surface-variant">The seismic report for Project Delta-9 is ready for final approval.</p>
+<p class="text-[10px] text-outline mt-1">12 minutes ago</p>
+</div>
+</div>
+<div class="p-4 border-b border-outline-variant/50 flex gap-3 hover:bg-surface transition-colors cursor-pointer">
+<div class="w-2 h-2 mt-1.5 rounded-full bg-error shrink-0"></div>
+<div>
+<p class="text-sm font-semibold">Anomalous Load Detected</p>
+<p class="text-xs text-on-surface-variant">Structure-012 shows 15% discrepancy in shear wall stress.</p>
+<p class="text-[10px] text-outline mt-1">2 hours ago</p>
+</div>
+</div>
+<div class="p-4 flex gap-3 hover:bg-surface transition-colors cursor-pointer">
+<div class="w-2 h-2 mt-1.5 rounded-full bg-transparent border border-outline shrink-0"></div>
+<div>
+<p class="text-sm font-semibold">System Update</p>
+<p class="text-xs text-on-surface-variant">Structura AI Core updated to v4.2.1 (Performance patches).</p>
+<p class="text-[10px] text-outline mt-1">Yesterday</p>
+</div>
+</div>
+</div>
+<button class="w-full py-3 text-xs font-bold text-outline hover:text-on-surface bg-surface-container-low transition-colors">Clear all notifications</button>
+</div>
+<!-- Upcoming Reviews -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xxl p-6 shadow-sm">
+<h4 class="font-semibold text-lg mb-4">Upcoming Reviews</h4>
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-surface border border-outline-variant flex flex-col items-center justify-center shrink-0">
+<span class="text-[10px] font-bold text-primary">OCT</span>
+<span class="text-sm font-bold -mt-1">24</span>
+</div>
+<div class="overflow-hidden">
+<p class="text-sm font-bold truncate">Quarterly Safety Audit</p>
+<p class="text-[11px] text-on-surface-variant">Project: Tower D-12</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-surface border border-outline-variant flex flex-col items-center justify-center shrink-0">
+<span class="text-[10px] font-bold text-primary">OCT</span>
+<span class="text-sm font-bold -mt-1">26</span>
+</div>
+<div class="overflow-hidden">
+<p class="text-sm font-bold truncate">Deep Learning Review</p>
+<p class="text-[11px] text-on-surface-variant">Global Site Parameters</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer / Technical Data Line -->
+<footer class="ml-10 mr-10 pb-10 border-t border-outline-variant pt-6 flex flex-wrap justify-between items-center text-[10px] text-outline font-mono-label tracking-widest uppercase">
+<div class="flex gap-6">
+<span>System Status: Operational</span>
+<span>Latency: 24ms</span>
+<span>Uptime: 99.98%</span>
+</div>
+<div>
+                © 2024 Structura AI Precision Systems
+            </div>
+</footer>
+</main>
+<!-- Micro-interaction Script -->
+<script>
+        document.querySelectorAll('.node-dot').forEach(node => {
+            node.addEventListener('mouseenter', () => {
+                node.style.boxShadow = '0 0 0 8px rgba(60, 121, 171, 0.2)';
+            });
+            node.addEventListener('mouseleave', () => {
+                node.style.boxShadow = '0 0 0 4px rgba(60, 121, 171, 0.1)';
+            });
+        });
+        
+        // Sticky Header Effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 20) {
+                header.classList.add('shadow-sm');
+                header.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+            } else {
+                header.classList.remove('shadow-sm');
+                header.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+            }
+        });
+    </script>
+</body></html>

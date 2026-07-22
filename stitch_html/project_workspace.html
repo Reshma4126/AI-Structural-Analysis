@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Structura AI | Project Workspace</title>
+<!-- Tailwind & Google Fonts -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#004e60",
+                        "secondary-container": "#dee4e4",
+                        "surface-container-low": "#edf4ff",
+                        "on-primary": "#ffffff",
+                        "surface-bright": "#f7f9ff",
+                        "outline-variant": "#c1c7d0",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#d0dbea",
+                        "secondary-fixed": "#dee4e4",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#41474f",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed": "#001f28",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#d8e4f3",
+                        "tertiary-fixed": "#b5ebff",
+                        "tertiary-fixed-dim": "#58d5fb",
+                        "on-primary-container": "#fdfcff",
+                        "tertiary": "#00657b",
+                        "on-background": "#111d27",
+                        "primary-fixed-dim": "#96ccff",
+                        "tertiary-container": "#007f9b",
+                        "surface": "#f7f9ff",
+                        "on-secondary-container": "#5f6666",
+                        "on-secondary-fixed": "#171d1d",
+                        "on-tertiary-container": "#fafdff",
+                        "outline": "#717880",
+                        "surface-container": "#e3effe",
+                        "surface-variant": "#d8e4f3",
+                        "on-primary-fixed": "#001d32",
+                        "on-surface": "#111d27",
+                        "primary-container": "#3c79ab",
+                        "on-primary-fixed-variant": "#004a75",
+                        "surface-tint": "#206393",
+                        "inverse-primary": "#96ccff",
+                        "secondary-fixed-dim": "#c2c8c8",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#e8f2ff",
+                        "secondary": "#596060",
+                        "surface-container-lowest": "#ffffff",
+                        "background": "#f7f9ff",
+                        "primary-fixed": "#cee5ff",
+                        "primary": "#1c6090",
+                        "inverse-surface": "#26313d",
+                        "on-secondary-fixed-variant": "#424848",
+                        "surface-container-high": "#dee9f8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "card": "20px",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-tablet": "24px",
+                        "margin-desktop": "40px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "container-max-width": "1440px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "mono-label": ["JetBrains Mono"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Manrope"],
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Manrope"],
+                        "body-sm": ["Inter"],
+                        "headline-md": ["Manrope"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "mono-label": ["13px", {"lineHeight": "18px", "fontWeight": "500"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #F8F9F9;
+            color: #111D27;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .technical-grid {
+            background-image: radial-gradient(#D5DBDB 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .blueprint-card {
+            border: 1px solid #D5DBDB;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .blueprint-card:hover {
+            border-color: #1C6090;
+            box-shadow: 0px 4px 20px rgba(28, 96, 144, 0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #D5DBDB;
+            border-radius: 10px;
+        }
+        .technical-line {
+            background: repeating-linear-gradient(90deg, #D5DBDB, #D5DBDB 1px, transparent 1px, transparent 4px);
+        }
+    </style>
+</head>
+<body class="overflow-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 z-50 w-full h-16 bg-surface flex justify-between items-center px-margin-desktop border-b border-outline-variant">
+<div class="flex items-center gap-8">
+<span class="font-headline-md text-headline-md font-bold text-primary">Structura AI</span>
+<div class="hidden md:flex gap-6">
+<a class="font-label-md text-label-md text-primary border-b-2 border-primary py-5" href="#">Overview</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors py-5 px-2" href="#">Collaborators</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors py-5 px-2" href="#">Calculations</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg font-label-md text-label-md flex items-center gap-2 hover:opacity-80 transition-all">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                Create New Project
+            </button>
+<div class="h-8 w-[1px] bg-outline-variant mx-2"></div>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<img class="w-8 h-8 rounded-full border border-outline-variant object-cover" data-alt="A professional headshot of a structural engineer in a clean, modern studio setting with soft directional lighting. The person is wearing a dark navy blazer over a white shirt, looking directly at the camera with a confident yet approachable expression. High-end professional portrait style, light grey background, crisp detail." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQYs2_tLFVPQbj1C66hb48Ey5XVZgR8W207p6-Wg1Z5m6EAF7ishhHnO7zvxUUFRtn2--JKIkmZZ0gb2gdSjTH_Nf0SaH0lB72io9HEZm-5KunehlUewYMn16qGG0DFkggamlf7nSwrwVaEpPxUO_v0rTbffK87KxH6JZjNTQtCVMWs95q4scojAEMIaF8hKFHrviqIgU99zY5lgqFQZuykg0ICbAJ9dakrxEwosPaMdaQSUtDoShJxg"/>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 bg-surface-container-lowest border-r border-outline-variant flex flex-col py-6">
+<nav class="flex-1 px-4 space-y-1">
+<!-- Active Tab: Projects -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary-container text-on-primary-container font-semibold transition-transform active:scale-[0.99]" href="#">
+<span class="material-symbols-outlined" data-icon="folder_open">folder_open</span>
+<span class="font-label-md text-label-md">Projects</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="architecture">architecture</span>
+<span class="font-label-md text-label-md">Beam Designs</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-label-md text-label-md">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="database">database</span>
+<span class="font-label-md text-label-md">Datasets</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<div class="px-4 py-6 border-t border-outline-variant space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-label-md text-label-md">Archive</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 mt-16 h-[calc(100vh-64px)] flex overflow-hidden">
+<!-- Content Scrollable Canvas -->
+<div class="flex-1 overflow-y-auto custom-scrollbar bg-[#F8F9F9] p-8 technical-grid">
+<!-- Dashboard Header Section -->
+<div class="mb-8">
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">Project Workspace</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Real-time analysis and management of enterprise structural projects.</p>
+</div>
+<!-- KPI Row -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+<div class="blueprint-card bg-surface p-6 rounded-card">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-label-md text-label-md">TOTAL PROJECTS</span>
+<span class="text-primary material-symbols-outlined">folder</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="font-display-lg text-[32px] font-bold">12</span>
+<span class="text-tertiary font-mono-label text-mono-label">+2 this mo</span>
+</div>
+<div class="mt-4 h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-3/4"></div>
+</div>
+</div>
+<div class="blueprint-card bg-surface p-6 rounded-card">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-label-md text-label-md">ACTIVE PROJECTS</span>
+<span class="text-tertiary material-symbols-outlined">analytics</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="font-display-lg text-[32px] font-bold">5</span>
+<span class="text-on-surface-variant font-mono-label text-mono-label">On Track</span>
+</div>
+<div class="mt-4 flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>
+<span class="text-xs text-on-surface-variant">Real-time monitoring enabled</span>
+</div>
+</div>
+<div class="blueprint-card bg-surface p-6 rounded-card">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-label-md text-label-md">BEAM DESIGNS</span>
+<span class="text-primary material-symbols-outlined">architecture</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="font-display-lg text-[32px] font-bold">142</span>
+<span class="text-tertiary font-mono-label text-mono-label">8 pending</span>
+</div>
+<div class="mt-4 flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-primary-container border-2 border-surface flex items-center justify-center text-[10px] font-bold">A</div>
+<div class="w-6 h-6 rounded-full bg-tertiary-container border-2 border-surface flex items-center justify-center text-[10px] font-bold text-white">B</div>
+<div class="w-6 h-6 rounded-full bg-secondary-container border-2 border-surface flex items-center justify-center text-[10px] font-bold">C</div>
+</div>
+</div>
+<div class="blueprint-card bg-surface p-6 rounded-card">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-label-md text-label-md">REPORTS GENERATED</span>
+<span class="text-on-surface-variant material-symbols-outlined">summarize</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="font-display-lg text-[32px] font-bold">28</span>
+<span class="text-error font-mono-label text-mono-label">Review required</span>
+</div>
+<div class="mt-4 technical-line h-1"></div>
+</div>
+</div>
+<!-- Main Project Grid -->
+<div class="mb-8 flex justify-between items-center">
+<h2 class="font-headline-md text-headline-md text-on-surface">Active Portfolio</h2>
+<div class="flex gap-2">
+<button class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">grid_view</span>
+</button>
+<button class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">format_list_bulleted</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-12">
+<!-- Project Card 1 -->
+<div class="blueprint-card bg-surface rounded-card overflow-hidden flex flex-col">
+<div class="h-48 relative overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover mix-blend-multiply opacity-80" data-alt="A high-angle architectural visualization of Hudson Yards Tower A, showing the complex steel lattice structure under a bright blue afternoon sky. The lighting is crisp and detailed, emphasizing the engineering precision and metallic textures. Professional 3D architectural rendering style with clean lines and realistic shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDH9f_qS4Kq0CcZisuwNqswgx9QImf_XA94Yz0eOc-_hkjANEivW3iBVsJ4D8B-6efvGQuRIihhcrqb9c8_SMc2JRh5ZcIuKF41ILRxMcVspjpbGrCtmsS-fBegk3ygNrimi1ZhnTstf8Vvxpv2xb0m3Wxx53O2xXq7Z5lFV5kMqmwSCFHLbCC5goHeQbZy4CIDkPftsk_RIH2tdaXPJhr6OjUVtAmdCiOcQFtrfjWe-d10qbKOJ2ZJgw"/>
+<div class="absolute top-4 left-4">
+<span class="bg-tertiary text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Active</span>
+</div>
+</div>
+<div class="p-6 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline-md text-headline-md mb-1">Hudson Yards Tower A</h3>
+<div class="flex items-center gap-2 text-on-surface-variant text-body-sm">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>New York, USA</span>
+<span class="mx-1">•</span>
+<span>Related Cos.</span>
+</div>
+</div>
+<button class="p-2 hover:bg-surface-container rounded-full">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="space-y-4 mb-6">
+<div>
+<div class="flex justify-between font-label-md text-label-md mb-2">
+<span>Structural Verification</span>
+<span>84%</span>
+</div>
+<div class="h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[84%]"></div>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl border border-outline-variant/30">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-tertiary text-sm">psychology</span>
+<span class="font-label-md text-label-md text-tertiary">RECENT AI ANALYSIS</span>
+</div>
+<p class="text-body-sm text-on-surface italic">"98% accuracy on shear stress prediction for primary load-bearing columns. Verification suggested for floor 42 joint connections."</p>
+</div>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant flex justify-between items-center">
+<span class="text-body-sm text-on-surface-variant">Last update: 2 hours ago</span>
+<button class="text-primary font-label-md text-label-md hover:underline">View Blueprint</button>
+</div>
+</div>
+</div>
+<!-- Project Card 2 -->
+<div class="blueprint-card bg-surface rounded-card overflow-hidden flex flex-col">
+<div class="h-48 relative overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover mix-blend-multiply opacity-80" data-alt="A detailed technical drafting style illustration of the Golden Gate Bridge suspension system. The image is rendered in a minimalist technical aesthetic with blueprint blue lines against a light grey background. It highlights the intricate steel cabling and anchor points with surgical precision. Architectural drafting mood, clean and sophisticated." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfd52h_KdMtn3cDY0V6uLwJkAtmBPMkvFLpjdC81NiwrKNXMCrKxA2YESLeQPFf10n92RYSa-erKGKSmE-e9YPADToA6nj4RvS2waFRbwaHiVbFJlIZSagtZ9SZgvbixJ0zLTT1IwkeREzRLgJKky0sBLvjqEeZGSqo7KbJtA2sg4VnGflrE-tTiCsffy4OczUQnN2IViwXGApFuLWflJz8FKB7J26jPzq4qeSQvRCkLH87s5BBZNr3w"/>
+<div class="absolute top-4 left-4">
+<span class="bg-on-surface-variant text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Review</span>
+</div>
+</div>
+<div class="p-6 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline-md text-headline-md mb-1">Golden Gate Retrofit</h3>
+<div class="flex items-center gap-2 text-on-surface-variant text-body-sm">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>San Francisco, USA</span>
+<span class="mx-1">•</span>
+<span>Caltrans</span>
+</div>
+</div>
+<button class="p-2 hover:bg-surface-container rounded-full">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="space-y-4 mb-6">
+<div>
+<div class="flex justify-between font-label-md text-label-md mb-2">
+<span>Retrofit Modeling</span>
+<span>42%</span>
+</div>
+<div class="h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[42%]"></div>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl border border-outline-variant/30">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-tertiary text-sm">psychology</span>
+<span class="font-label-md text-label-md text-tertiary">RECENT AI ANALYSIS</span>
+</div>
+<p class="text-body-sm text-on-surface italic">"Seismic damping efficiency at anchor point C4 projected at 92.4% following new structural reinforcement patterns."</p>
+</div>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant flex justify-between items-center">
+<span class="text-body-sm text-on-surface-variant">Last update: Yesterday</span>
+<button class="text-primary font-label-md text-label-md hover:underline">View Blueprint</button>
+</div>
+</div>
+</div>
+<!-- Project Card 3 -->
+<div class="blueprint-card bg-surface rounded-card overflow-hidden flex flex-col">
+<div class="h-48 relative overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover mix-blend-multiply opacity-80" data-alt="A futuristic architectural rendering of the Marina Bay Sands Expansion under soft twilight lighting. The image emphasizes the unique cantilevered structural forms and glass facades reflecting the city lights. Sophisticated, high-contrast visual style with a focus on engineering complexity and modern aesthetics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1o9ew9uQaaJWR2perrjAgOepTVueSItdnxoc3ZJDnEmxz6eLghSG6lt3ySkcfg3rqcohF_Rm4NNTZi6irficBuv1zxj3sRi3d5gYtXjpNAqAoiH3JL99R793Je2yxRKmjHcjdGSrvHnruptfNBCMJ9h2TSC9eQPOXcJlIf-lHhqtla6_xC0GzlJ-DFg9yBLIXhuypsBDTVQ1E_5NF_8V_cgfVzsjiJXLqgk5koIdTRNDaNNbNrUPuSw"/>
+<div class="absolute top-4 left-4">
+<span class="bg-tertiary text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Active</span>
+</div>
+</div>
+<div class="p-6 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline-md text-headline-md mb-1">Marina Bay Sands Expansion</h3>
+<div class="flex items-center gap-2 text-on-surface-variant text-body-sm">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>Singapore</span>
+<span class="mx-1">•</span>
+<span>Las Vegas Sands</span>
+</div>
+</div>
+<button class="p-2 hover:bg-surface-container rounded-full">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="space-y-4 mb-6">
+<div>
+<div class="flex justify-between font-label-md text-label-md mb-2">
+<span>Expansion Analysis</span>
+<span>91%</span>
+</div>
+<div class="h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[91%]"></div>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl border border-outline-variant/30">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-tertiary text-sm">psychology</span>
+<span class="font-label-md text-label-md text-tertiary">RECENT AI ANALYSIS</span>
+</div>
+<p class="text-body-sm text-on-surface italic">"Cantilever stress points finalized. Structural integrity verified for increased wind-load resistance during monsoon season."</p>
+</div>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant flex justify-between items-center">
+<span class="text-body-sm text-on-surface-variant">Last update: 5 hours ago</span>
+<button class="text-primary font-label-md text-label-md hover:underline">View Blueprint</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Utility Panel -->
+<aside class="w-80 border-l border-outline-variant bg-surface flex flex-col overflow-y-auto custom-scrollbar">
+<div class="p-6">
+<!-- Activity Timeline -->
+<div class="mb-8">
+<h4 class="font-label-md text-label-md text-on-surface-variant mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">history</span>
+                        RECENT ACTIVITY
+                    </h4>
+<div class="space-y-6">
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">architecture</span>
+</div>
+<div class="w-[1px] h-full bg-outline-variant mt-2"></div>
+</div>
+<div>
+<p class="text-body-sm font-semibold">Beam Design Updated</p>
+<p class="text-xs text-on-surface-variant mb-1">Hudson Yards Tower A</p>
+<p class="text-[10px] text-outline">14:20 PM • Sarah J.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-tertiary-container text-white flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">verified</span>
+</div>
+<div class="w-[1px] h-full bg-outline-variant mt-2"></div>
+</div>
+<div>
+<p class="text-body-sm font-semibold">AI Verification Passed</p>
+<p class="text-xs text-on-surface-variant mb-1">Marina Bay Sands Expansion</p>
+<p class="text-[10px] text-outline">11:05 AM • System</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">description</span>
+</div>
+</div>
+<div>
+<p class="text-body-sm font-semibold">Report Generated</p>
+<p class="text-xs text-on-surface-variant mb-1">Quarterly Safety Audit</p>
+<p class="text-[10px] text-outline">Yesterday • Mark T.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Upcoming Reviews -->
+<div class="mb-8">
+<h4 class="font-label-md text-label-md text-on-surface-variant mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">event</span>
+                        UPCOMING REVIEWS
+                    </h4>
+<ul class="space-y-3">
+<li class="p-3 bg-surface-container-low border border-outline-variant/30 rounded-lg hover:bg-surface-container transition-all cursor-pointer">
+<p class="text-body-sm font-semibold mb-1">Steel Joint Validation</p>
+<div class="flex justify-between items-center">
+<span class="text-xs text-on-surface-variant">In 2 hours</span>
+<span class="text-xs font-mono-label text-error">URGENT</span>
+</div>
+</li>
+<li class="p-3 bg-surface-container-low border border-outline-variant/30 rounded-lg hover:bg-surface-container transition-all cursor-pointer">
+<p class="text-body-sm font-semibold mb-1">Caltrans Final Approval</p>
+<div class="flex justify-between items-center">
+<span class="text-xs text-on-surface-variant">Tomorrow</span>
+<span class="text-xs font-mono-label text-primary">MEETING</span>
+</div>
+</li>
+</ul>
+</div>
+<!-- Favorite Projects -->
+<div>
+<h4 class="font-label-md text-label-md text-on-surface-variant mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">star</span>
+                        FAVORITE PROJECTS
+                    </h4>
+<div class="space-y-3">
+<div class="flex items-center gap-3 p-2 hover:bg-surface-container rounded-lg transition-all cursor-pointer">
+<div class="w-10 h-10 rounded bg-outline-variant/20 flex-shrink-0">
+<img class="w-full h-full object-cover rounded opacity-80" data-alt="A professional architectural photograph of a sleek, modern commercial skyscraper facade at dusk. The building features floor-to-ceiling glass panels and distinct structural steel accents, glowing warmly from internal office lights against a deep navy sky. High-end architectural photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCR9X_OH-pmz0HYZEWqDpoBWQBlAn5JUIeSf0PvmI1HwzIBb0pSjiCrVAKSecR4f68Zm1-rOVzMBfFV4a5NwDYl4l3aybyG6OZyl2e_hogH-j0d4t0FF-d_HgV_Igi-22fbW79kvR40C0ZJiXXFPyRel2P1EgpdBJhGmT0p0lVkyP2h7HY02pY5tFFCSXn_jYSp0XSySjU_lIY0R5OU0YZeVDwQ_5B91f4iWwIIb1gS96HWxOt0Zauhuw"/>
+</div>
+<div class="min-w-0">
+<p class="text-body-sm font-semibold truncate">London Crossrail Hub</p>
+<p class="text-xs text-on-surface-variant">UK Architecture</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-2 hover:bg-surface-container rounded-lg transition-all cursor-pointer">
+<div class="w-10 h-10 rounded bg-outline-variant/20 flex-shrink-0">
+<img class="w-full h-full object-cover rounded opacity-80" data-alt="A clean, minimalist 3D rendering of an Olympic stadium's structural skeleton. The focus is on the white steel cantilevered roof structure against a neutral grey background. The lighting is soft and even, emphasizing the geometric patterns of the engineering design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDHAbfOguyKyqR0M5Q9vtwYeNzOAktla_Q6QnennKwGAUZfxmTmY3s7eyz7oxUJ480t-cFVrAwEGROwmJMBsFJh_U0faV_Vr6bCt2G-XyF0r8EHGTWtWQQO0UjyZ0NDjFDKHCR6FHcOPyK-S2OdJP50dO_MijyzbW6U2nrZZIeBPeclOBaMNgiws9vBxc2m2VHd4K1ghRgxC9nfqGXvpGqZM7I7U0a6GP9lz9ZUCk-hj5zp7oTbOsT3g"/>
+</div>
+<div class="min-w-0">
+<p class="text-body-sm font-semibold truncate">Olympic Stadium Roof</p>
+<p class="text-xs text-on-surface-variant">Tokyo Eng Group</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</main>
+<!-- Micro-interaction Script -->
+<script>
+        document.querySelectorAll('.blueprint-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.classList.add('translate-y-[-2px]');
+            });
+            card.addEventListener('mouseleave', () => {
+                card.classList.remove('translate-y-[-2px]');
+            });
+        });
+    </script>
+</body></html>
