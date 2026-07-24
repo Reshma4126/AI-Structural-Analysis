@@ -6,11 +6,8 @@ export default function Sidebar({ collapsed, toggleCollapse }) {
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
     { name: 'Projects', path: '/projects', icon: 'folder_open' },
-    { name: 'Beam Design', path: '/beam-design', icon: 'architecture' },
-    { name: 'AI Analysis', path: '/analysis', icon: 'psychology' },
-    { name: 'Evaluation', path: '/evaluation', icon: 'assessment' },
-    { name: 'Recommendations', path: '/recommendations', icon: 'tips_and_updates' },
-    { name: 'Explainable AI', path: '/xai', icon: 'visibility' },
+    { name: 'Beam Models', path: '/beam-design', icon: 'architecture' },
+    { name: 'Analysis', path: '/analysis', icon: 'psychology' },
     { name: 'Reports', path: '/reports', icon: 'description' },
     { name: 'Settings', path: '/settings', icon: 'settings' },
   ];

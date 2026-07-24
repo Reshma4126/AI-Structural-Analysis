@@ -115,7 +115,126 @@ export default function ProjectsPage() {
         </div>
       </div>
 
-      {/* Projects Display Area */}
+      {/* Active Selected Project Cockpit View */}
+      {projects.length > 0 && (
+        <div className="bg-white rounded-lg border border-concrete-300 shadow-blueprint p-6 space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-concrete-200 pb-5">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-mono text-cyanAccent-600 font-bold uppercase mb-1">
+                <span className="w-2 h-2 rounded-full bg-cyanAccent-500 animate-pulse"></span>
+                ACTIVE PROJECT WORKSPACE
+              </div>
+              <h2 className="text-2xl font-heading font-extrabold text-navy-900 tracking-tight">
+                Project: {projects[0].name}
+              </h2>
+              <p className="text-xs text-navy-500 font-mono mt-0.5">
+                {projects[0].id} • {projects[0].type} • {projects[0].code}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Button
+                variant="primary"
+                icon="architecture"
+                onClick={() => navigate('/beam-design')}
+              >
+                Continue Input →
+              </Button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Input Completion Checklist */}
+            <div className="lg:col-span-2 bg-concrete-50 p-5 rounded-lg border border-concrete-200 space-y-4">
+              <h3 className="text-sm font-heading font-bold text-navy-800 uppercase tracking-wider flex items-center gap-2">
+                <span className="material-symbols-outlined text-steel-600 text-lg">fact_check</span>
+                Model Input Checklist Status
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="flex items-center gap-3 p-3 bg-white rounded border border-concrete-200">
+                  <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">✓</span>
+                  <div>
+                    <p className="font-heading font-bold text-navy-800">Beam Created</p>
+                    <p className="text-[11px] text-navy-500">Member ID: B-104 Transfer Girder</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 bg-white rounded border border-concrete-200">
+                  <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">✓</span>
+                  <div>
+                    <p className="font-heading font-bold text-navy-800">Geometry Completed</p>
+                    <p className="text-[11px] text-navy-500">Span: 12.5m, Section: 540x230mm</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 bg-white rounded border border-concrete-200">
+                  <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">✓</span>
+                  <div>
+                    <p className="font-heading font-bold text-navy-800">Material Completed</p>
+                    <p className="text-[11px] text-navy-500">Concrete C35/45, Steel Fe500</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 bg-white rounded border border-concrete-200">
+                  <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">✓</span>
+                  <div>
+                    <p className="font-heading font-bold text-navy-800">Reinforcement Completed</p>
+                    <p className="text-[11px] text-navy-500">4T25 Bottom, 2T16 Top, 8mm Shear</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 bg-amber-50 rounded border border-amber-200 sm:col-span-2">
+                  <span className="w-6 h-6 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold">⚠</span>
+                  <div className="flex-1 flex items-center justify-between">
+                    <div>
+                      <p className="font-heading font-bold text-amber-900">Loads Input Pending</p>
+                      <p className="text-[11px] text-amber-700">Enter dead load, live load, and point forces to unlock AI prediction.</p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate('/beam-design')}
+                    >
+                      Complete Inputs
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* AI Analysis Availability Guard Banner */}
+            <div className="bg-navy-900 text-white p-5 rounded-lg border border-navy-700 flex flex-col justify-between space-y-4">
+              <div>
+                <div className="flex items-center gap-2 text-cyanAccent-400 font-mono text-xs font-bold uppercase tracking-wider mb-2">
+                  <span className="material-symbols-outlined text-lg">lock</span>
+                  AI Analysis Status
+                </div>
+                <h4 className="font-heading font-bold text-base text-white">
+                  Analysis Engine Gated
+                </h4>
+                <p className="text-xs text-navy-200 leading-relaxed mt-1">
+                  AI prediction, health scoring, and SHAP explainability insights remain unavailable until all loading and material parameters are validated.
+                </p>
+              </div>
+
+              <div className="pt-3 border-t border-navy-700">
+                <Button
+                  variant="accent"
+                  size="sm"
+                  className="w-full justify-center opacity-80"
+                  icon="play_arrow"
+                  onClick={() => navigate('/beam-design')}
+                >
+                  Enter Inputs to Unlock Analysis
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Projects Display Grid / List */}
       {viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProjects.map((prj) => (
@@ -135,9 +254,6 @@ export default function ProjectsPage() {
                     {prj.status}
                   </Badge>
                 </div>
-                <div className="absolute bottom-3 right-3 bg-navy-900/80 backdrop-blur text-white text-[10px] font-mono px-2 py-0.5 rounded border border-navy-700">
-                  Health: {prj.healthScore}%
-                </div>
               </div>
 
               {/* Card Body */}
@@ -156,18 +272,14 @@ export default function ProjectsPage() {
                 </div>
 
                 {/* Key Metrics */}
-                <div className="grid grid-cols-3 gap-2 p-3 bg-concrete-50 rounded border border-concrete-200 text-center text-xs font-mono">
+                <div className="grid grid-cols-2 gap-2 p-3 bg-concrete-50 rounded border border-concrete-200 text-center text-xs font-mono">
                   <div>
                     <span className="text-navy-400 text-[9px] block">MEMBERS</span>
                     <span className="font-bold text-navy-800">{prj.beamsCount}</span>
                   </div>
                   <div>
-                    <span className="text-navy-400 text-[9px] block">SAFETY FACTOR</span>
-                    <span className="font-bold text-emerald-600">{prj.safetyFactor}</span>
-                  </div>
-                  <div>
-                    <span className="text-navy-400 text-[9px] block">SAVINGS</span>
-                    <span className="font-bold text-cyanAccent-600">{prj.weightSavings}</span>
+                    <span className="text-navy-400 text-[9px] block">TYPE</span>
+                    <span className="font-bold text-steel-700 truncate block">{prj.type}</span>
                   </div>
                 </div>
 
@@ -182,7 +294,7 @@ export default function ProjectsPage() {
                     icon="arrow_forward"
                     onClick={() => navigate('/beam-design')}
                   >
-                    Open Workspace
+                    Continue →
                   </Button>
                 </div>
               </div>
@@ -198,8 +310,6 @@ export default function ProjectsPage() {
                 <th className="p-4">Project Name</th>
                 <th className="p-4">Structural Code</th>
                 <th className="p-4">Beams Count</th>
-                <th className="p-4">Safety Factor</th>
-                <th className="p-4">AI Weight Savings</th>
                 <th className="p-4">Status</th>
                 <th className="p-4 text-right">Action</th>
               </tr>
@@ -213,8 +323,6 @@ export default function ProjectsPage() {
                   </td>
                   <td className="p-4 font-mono text-navy-600">{prj.code}</td>
                   <td className="p-4 font-mono text-navy-800">{prj.beamsCount} members</td>
-                  <td className="p-4 font-mono font-bold text-emerald-600">{prj.safetyFactor}</td>
-                  <td className="p-4 font-mono font-bold text-cyanAccent-600">{prj.weightSavings}</td>
                   <td className="p-4">
                     <Badge variant={prj.status === 'Approved' ? 'green' : 'cyan'}>
                       {prj.status}
@@ -227,7 +335,7 @@ export default function ProjectsPage() {
                       icon="open_in_new"
                       onClick={() => navigate('/beam-design')}
                     >
-                      Open
+                      Open Workspace
                     </Button>
                   </td>
                 </tr>

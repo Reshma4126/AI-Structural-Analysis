@@ -16,14 +16,15 @@ export default function AnalysisPage() {
       {/* Header Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded border border-concrete-300 shadow-blueprint">
         <div>
-          <div className="flex items-center gap-2 text-xs font-mono text-steel-600 mb-1">
-            ANALYTICS ENGINE • AISC 360-16 LRFD VERIFIED
+          <div className="flex items-center gap-2 text-xs font-mono text-cyanAccent-600 font-bold uppercase mb-1">
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            MODULE 4 • AI ANALYSIS & EXPLAINABILITY RESULTS
           </div>
-          <h1 className="text-2xl font-heading font-extrabold text-navy-800 tracking-tight">
-            Engineering Review Dashboard
+          <h1 className="text-2xl font-heading font-extrabold text-navy-900 tracking-tight">
+            Prediction, Health Score & Structural Performance
           </h1>
           <p className="text-xs text-navy-500 mt-1">
-            Comprehensive stress distribution, flexural design safety checks, and FEA iteration comparison.
+            Analysis results generated from validated beam geometry, material, and ultimate limit state loads.
           </p>
         </div>
 

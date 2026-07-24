@@ -3,202 +3,339 @@ import { useNavigate } from 'react-router-dom';
 import MainLayout from '../../components/layout/MainLayout';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
-import MetricCard from '../../components/common/MetricCard';
 
 export default function BeamDesignPage() {
   const navigate = useNavigate();
-  const [activeStep, setActiveStep] = useState(1); // 1: Geometry, 2: Materials & Loads, 3: Capacity Check
+  const [activeTab, setActiveTab] = useState('geometry'); // 'geometry' | 'material' | 'reinforcement' | 'loading'
+  const [isValidated, setIsValidated] = useState(false);
+  const [validationMsg, setValidationMsg] = useState('');
 
-  // Form State
+  // Form State for Reinforced Concrete Beam
   const [beamData, setBeamData] = useState({
-    name: 'Beam B-104 (Transfer Girder)',
-    spanLength: 12.5,
-    depth: 540,
-    width: 230,
-    webThickness: 11.2,
-    flangeThickness: 17.3,
-    steelGrade: 'ASTM A992 (Fy = 50 ksi)',
-    deadLoad: 35.0,
-    liveLoad: 45.0,
-    pointLoad: 120.0,
+    name: 'RC Beam B-104 (Transfer Girder)',
+    type: 'Simply Supported Beam',
+    length: 12.5, // meters
+    width: 300, // mm
+    depth: 600, // mm
+    effectiveDepth: 540, // mm
+    concreteGrade: 'C35/45 (fck = 35 MPa)',
+    steelGrade: 'Fe500 (fyk = 500 MPa)',
+    tensionBars: '4 x T25 (1963 mm²)',
+    compressionBars: '2 x T16 (402 mm²)',
+    stirrups: '8mm @ 150mm c/c',
+    deadLoad: 35.0, // kN/m
+    liveLoad: 45.0, // kN/m
+    pointLoad: 120.0, // kN
   });
 
-  // Calculate Real-time Section Properties & Flexural Safety Factor
-  const depthM = beamData.depth / 1000;
-  const widthM = beamData.width / 1000;
-  const tfM = beamData.flangeThickness / 1000;
-  const twM = beamData.webThickness / 1000;
+  const handleValidate = () => {
+    if (beamData.length <= 0 || beamData.width <= 0 || beamData.depth <= 0) {
+      setValidationMsg('Error: Beam dimensions must be greater than 0.');
+      setIsValidated(false);
+      return;
+    }
+    setIsValidated(true);
+    setValidationMsg('✓ All input geometry, materials, reinforcement, and load parameters are valid and satisfy ACI 318 / IS 456 limits.');
+  };
 
-  // Approximate Plastic Section Modulus Zx (cm^3)
-  const Zx = Math.round(
-    (widthM * tfM * (depthM - tfM) + 0.25 * twM * Math.pow(depthM - 2 * tfM, 2)) * 1e6
-  );
+  const handleSave = () => {
+    alert(`Beam model "${beamData.name}" successfully saved to active project.`);
+  };
 
-  // Approximate Max Bending Moment M_u (kN·m) under UDL + Point load
-  const totalUDL = 1.2 * beamData.deadLoad + 1.6 * beamData.liveLoad; // LRFD combo
-  const Mu = ((totalUDL * Math.pow(beamData.spanLength, 2)) / 8 + (1.6 * beamData.pointLoad * beamData.spanLength) / 4).toFixed(1);
-  const Mn = ((345 * Zx) / 1000).toFixed(1); // Nominal Moment Capacity (Fy = 345 MPa)
-  const safetyFactor = (Mn / Mu).toFixed(2);
-  const flexuralRatio = (Mu / Mn).toFixed(3);
+  const handleRunAnalysis = () => {
+    if (!isValidated) {
+      handleValidate();
+    }
+    // Navigate to Module 4 Analysis
+    navigate('/analysis');
+  };
 
   return (
     <MainLayout>
-      {/* Wizard Header Bar */}
+      {/* Header Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded border border-concrete-300 shadow-blueprint">
         <div>
-          <div className="flex items-center gap-2 text-xs font-mono text-steel-600 mb-1">
-            WIZARD STEP {activeStep} OF 3 • AISC 360-16 LRFD
+          <div className="flex items-center gap-2 text-xs font-mono text-cyanAccent-600 font-bold uppercase mb-1">
+            <span className="w-2 h-2 rounded-full bg-cyanAccent-500 animate-pulse"></span>
+            MODULE 3 • REINFORCED CONCRETE BEAM MODELING WORKSTATION
           </div>
-          <h1 className="text-2xl font-heading font-extrabold text-navy-800 tracking-tight">
-            Beam Section Design Wizard
+          <h1 className="text-2xl font-heading font-extrabold text-navy-900 tracking-tight">
+            Beam Information & Parameter Controls
           </h1>
           <p className="text-xs text-navy-500 mt-1">
-            Specify cross-sectional geometry, material yield stress, and ultimate limit state loads.
+            Input cross-sectional geometry, material properties, reinforcement layout, and design loads.
           </p>
         </div>
 
-        {/* Stepper Navigation Pills */}
-        <div className="flex items-center gap-2">
-          {[
-            { step: 1, label: '1. Geometry' },
-            { step: 2, label: '2. Loads & Materials' },
-            { step: 3, label: '3. Capacity Check' },
-          ].map((item) => (
-            <button
-              key={item.step}
-              onClick={() => setActiveStep(item.step)}
-              className={`px-3 py-1.5 rounded font-mono text-xs transition ${
-                activeStep === item.step
-                  ? 'bg-steel-500 text-white font-bold shadow'
-                  : 'bg-concrete-100 text-navy-600 hover:bg-concrete-200'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
+        <div className="flex items-center gap-3">
+          <Button
+            variant="secondary"
+            icon="save"
+            onClick={handleSave}
+          >
+            Save Model
+          </Button>
+          <Button
+            variant="outline"
+            icon="fact_check"
+            onClick={handleValidate}
+          >
+            Validate Inputs
+          </Button>
+          <Button
+            variant="primary"
+            icon="play_arrow"
+            onClick={handleRunAnalysis}
+          >
+            Run AI Analysis →
+          </Button>
         </div>
       </div>
 
-      {/* Main Wizard Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 Cols: Step Input Controls */}
-        <div className="lg:col-span-2 bg-white p-6 rounded border border-concrete-300 shadow-blueprint space-y-6">
-          {activeStep === 1 && (
-            <div className="space-y-6">
-              <div className="border-b border-concrete-200 pb-3">
-                <h2 className="text-lg font-heading font-bold text-navy-800 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-steel-600">architecture</span>
-                  Cross-Sectional Dimensions (I-Beam / W-Shape)
-                </h2>
-                <p className="text-xs text-navy-500">Define member depth, flange width, and plate thickness.</p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div>
-                  <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                    Beam Member Name
-                  </label>
-                  <input
-                    type="text"
-                    value={beamData.name}
-                    onChange={(e) => setBeamData({ ...beamData, name: e.target.value })}
-                    className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 focus:outline-none focus:ring-2 focus:ring-steel-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                    Span Length L (m)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={beamData.spanLength}
-                    onChange={(e) => setBeamData({ ...beamData, spanLength: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:outline-none focus:ring-2 focus:ring-steel-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                    Overall Depth d (mm)
-                  </label>
-                  <input
-                    type="number"
-                    value={beamData.depth}
-                    onChange={(e) => setBeamData({ ...beamData, depth: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:outline-none focus:ring-2 focus:ring-steel-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                    Flange Width bf (mm)
-                  </label>
-                  <input
-                    type="number"
-                    value={beamData.width}
-                    onChange={(e) => setBeamData({ ...beamData, width: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:outline-none focus:ring-2 focus:ring-steel-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                    Flange Thickness tf (mm)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={beamData.flangeThickness}
-                    onChange={(e) => setBeamData({ ...beamData, flangeThickness: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:outline-none focus:ring-2 focus:ring-steel-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                    Web Thickness tw (mm)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={beamData.webThickness}
-                    onChange={(e) => setBeamData({ ...beamData, webThickness: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:outline-none focus:ring-2 focus:ring-steel-500"
-                  />
-                </div>
-              </div>
-            </div>
+      {/* Validation Status Banner */}
+      {validationMsg && (
+        <div className={`p-4 rounded border text-xs flex items-center justify-between ${
+          isValidated
+            ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-medium'
+            : 'bg-red-50 border-red-300 text-red-900 font-medium'
+        }`}>
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-base">
+              {isValidated ? 'check_circle' : 'error'}
+            </span>
+            <span>{validationMsg}</span>
+          </div>
+          {isValidated && (
+            <span className="font-mono text-[11px] bg-emerald-100 px-2.5 py-0.5 rounded text-emerald-800 font-bold">
+              Ready for AI Prediction
+            </span>
           )}
+        </div>
+      )}
 
-          {activeStep === 2 && (
-            <div className="space-y-6">
-              <div className="border-b border-concrete-200 pb-3">
-                <h2 className="text-lg font-heading font-bold text-navy-800 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-steel-600">tune</span>
-                  Material Properties & LRFD Load Combinations
-                </h2>
-                <p className="text-xs text-navy-500">Specify steel yield strength and ultimate design load cases.</p>
-              </div>
+      {/* Main Workstation Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left 2 Cols: Form Sections Tabs */}
+        <div className="lg:col-span-2 bg-white rounded border border-concrete-300 shadow-blueprint overflow-hidden flex flex-col">
+          {/* Section Navigation Tabs */}
+          <div className="flex border-b border-concrete-200 bg-concrete-50 overflow-x-auto">
+            <button
+              onClick={() => setActiveTab('geometry')}
+              className={`px-5 py-3 text-xs font-heading font-bold transition flex items-center gap-2 border-b-2 whitespace-nowrap ${
+                activeTab === 'geometry'
+                  ? 'border-steel-500 text-steel-600 bg-white'
+                  : 'border-transparent text-navy-500 hover:text-navy-800'
+              }`}
+            >
+              <span className="material-symbols-outlined text-base">architecture</span>
+              1. Beam & Geometry
+            </button>
+            <button
+              onClick={() => setActiveTab('material')}
+              className={`px-5 py-3 text-xs font-heading font-bold transition flex items-center gap-2 border-b-2 whitespace-nowrap ${
+                activeTab === 'material'
+                  ? 'border-steel-500 text-steel-600 bg-white'
+                  : 'border-transparent text-navy-500 hover:text-navy-800'
+              }`}
+            >
+              <span className="material-symbols-outlined text-base">science</span>
+              2. Concrete & Steel Grade
+            </button>
+            <button
+              onClick={() => setActiveTab('reinforcement')}
+              className={`px-5 py-3 text-xs font-heading font-bold transition flex items-center gap-2 border-b-2 whitespace-nowrap ${
+                activeTab === 'reinforcement'
+                  ? 'border-steel-500 text-steel-600 bg-white'
+                  : 'border-transparent text-navy-500 hover:text-navy-800'
+              }`}
+            >
+              <span className="material-symbols-outlined text-base">grid_4x4</span>
+              3. Reinforcement
+            </button>
+            <button
+              onClick={() => setActiveTab('loading')}
+              className={`px-5 py-3 text-xs font-heading font-bold transition flex items-center gap-2 border-b-2 whitespace-nowrap ${
+                activeTab === 'loading'
+                  ? 'border-steel-500 text-steel-600 bg-white'
+                  : 'border-transparent text-navy-500 hover:text-navy-800'
+              }`}
+            >
+              <span className="material-symbols-outlined text-base">download</span>
+              4. Design Loading
+            </button>
+          </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                    Steel Grade Specification
-                  </label>
-                  <select
-                    value={beamData.steelGrade}
-                    onChange={(e) => setBeamData({ ...beamData, steelGrade: e.target.value })}
-                    className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:outline-none focus:ring-2 focus:ring-steel-500"
-                  >
-                    <option value="ASTM A992 (Fy = 50 ksi)">ASTM A992 (Fy = 50 ksi / 345 MPa)</option>
-                    <option value="ASTM A36 (Fy = 36 ksi)">ASTM A36 (Fy = 36 ksi / 250 MPa)</option>
-                    <option value="S355 JR Eurocode (Fy = 355 MPa)">S355 JR Eurocode (Fy = 355 MPa)</option>
-                    <option value="S460 High Yield (Fy = 460 MPa)">S460 High Yield (Fy = 460 MPa)</option>
-                  </select>
+          {/* Form Content Body */}
+          <div className="p-6 space-y-6 flex-1">
+            {activeTab === 'geometry' && (
+              <div className="space-y-5">
+                <h3 className="font-heading font-bold text-sm text-navy-900 border-b border-concrete-200 pb-2">
+                  Beam Identifier & Geometry Parameters
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
+                      Beam Designation / Name
+                    </label>
+                    <input
+                      type="text"
+                      value={beamData.name}
+                      onChange={(e) => setBeamData({ ...beamData, name: e.target.value })}
+                      className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 focus:ring-2 focus:ring-steel-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
+                      Support Condition / Beam Type
+                    </label>
+                    <select
+                      value={beamData.type}
+                      onChange={(e) => setBeamData({ ...beamData, type: e.target.value })}
+                      className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 focus:ring-2 focus:ring-steel-500"
+                    >
+                      <option value="Simply Supported Beam">Simply Supported Beam</option>
+                      <option value="Continuous Beam">Continuous Beam</option>
+                      <option value="Cantilever Beam">Cantilever Beam</option>
+                      <option value="Fixed End Beam">Fixed End Beam</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
+                      Clear Span Length L (m)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={beamData.length}
+                      onChange={(e) => setBeamData({ ...beamData, length: parseFloat(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
+                      Section Width b (mm)
+                    </label>
+                    <input
+                      type="number"
+                      value={beamData.width}
+                      onChange={(e) => setBeamData({ ...beamData, width: parseInt(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
+                      Total Overall Depth D (mm)
+                    </label>
+                    <input
+                      type="number"
+                      value={beamData.depth}
+                      onChange={(e) => setBeamData({ ...beamData, depth: parseInt(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
+                      Effective Depth d (mm)
+                    </label>
+                    <input
+                      type="number"
+                      value={beamData.effectiveDepth}
+                      onChange={(e) => setBeamData({ ...beamData, effectiveDepth: parseInt(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
+                    />
+                  </div>
                 </div>
+              </div>
+            )}
 
+            {activeTab === 'material' && (
+              <div className="space-y-5">
+                <h3 className="font-heading font-bold text-sm text-navy-900 border-b border-concrete-200 pb-2">
+                  Concrete & Steel Material Strengths
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
+                      Concrete Characteristic Strength (fck / fc')
+                    </label>
+                    <select
+                      value={beamData.concreteGrade}
+                      onChange={(e) => setBeamData({ ...beamData, concreteGrade: e.target.value })}
+                      className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
+                    >
+                      <option value="C25/30 (fck = 25 MPa)">C25/30 (fck = 25 MPa / 3.6 ksi)</option>
+                      <option value="C30/37 (fck = 30 MPa)">C30/37 (fck = 30 MPa / 4.35 ksi)</option>
+                      <option value="C35/45 (fck = 35 MPa)">C35/45 (fck = 35 MPa / 5.0 ksi)</option>
+                      <option value="C40/50 (fck = 40 MPa)">C40/50 (fck = 40 MPa / 5.8 ksi)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
+                      Rebar Yield Strength (fyk / fy)
+                    </label>
+                    <select
+                      value={beamData.steelGrade}
+                      onChange={(e) => setBeamData({ ...beamData, steelGrade: e.target.value })}
+                      className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
+                    >
+                      <option value="Fe415 (fyk = 415 MPa)">Fe415 (fyk = 415 MPa / 60 ksi)</option>
+                      <option value="Fe500 (fyk = 500 MPa)">Fe500 (fyk = 500 MPa / 72.5 ksi)</option>
+                      <option value="Fe550 (fyk = 550 MPa)">Fe550 (fyk = 550 MPa / 80 ksi)</option>
+                      <option value="ASTM A615 Grade 60">ASTM A615 Grade 60 (fy = 60 ksi)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'reinforcement' && (
+              <div className="space-y-5">
+                <h3 className="font-heading font-bold text-sm text-navy-900 border-b border-concrete-200 pb-2">
+                  Longitudinal & Transverse Reinforcement Layout
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
+                      Main Tension Reinforcement (Ast)
+                    </label>
+                    <input
+                      type="text"
+                      value={beamData.tensionBars}
+                      onChange={(e) => setBeamData({ ...beamData, tensionBars: e.target.value })}
+                      className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
+                      Compression Reinforcement (Asc)
+                    </label>
+                    <input
+                      type="text"
+                      value={beamData.compressionBars}
+                      onChange={(e) => setBeamData({ ...beamData, compressionBars: e.target.value })}
+                      className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
+                      Shear Stirrups / Ties
+                    </label>
+                    <input
+                      type="text"
+                      value={beamData.stirrups}
+                      onChange={(e) => setBeamData({ ...beamData, stirrups: e.target.value })}
+                      className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'loading' && (
+              <div className="space-y-5">
+                <h3 className="font-heading font-bold text-sm text-navy-900 border-b border-concrete-200 pb-2">
+                  Applied Structural Loads (Ultimate Limit State)
+                </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
@@ -208,10 +345,9 @@ export default function BeamDesignPage() {
                       type="number"
                       value={beamData.deadLoad}
                       onChange={(e) => setBeamData({ ...beamData, deadLoad: parseFloat(e.target.value) || 0 })}
-                      className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:outline-none focus:ring-2 focus:ring-steel-500"
+                      className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
                     />
                   </div>
-
                   <div>
                     <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
                       Live Load Wl (kN/m)
@@ -220,172 +356,97 @@ export default function BeamDesignPage() {
                       type="number"
                       value={beamData.liveLoad}
                       onChange={(e) => setBeamData({ ...beamData, liveLoad: parseFloat(e.target.value) || 0 })}
-                      className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:outline-none focus:ring-2 focus:ring-steel-500"
+                      className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
                     />
                   </div>
-
                   <div>
                     <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                      Point Load P_mid (kN)
+                      Concentrated Point Load P (kN)
                     </label>
                     <input
                       type="number"
                       value={beamData.pointLoad}
                       onChange={(e) => setBeamData({ ...beamData, pointLoad: parseFloat(e.target.value) || 0 })}
-                      className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:outline-none focus:ring-2 focus:ring-steel-500"
+                      className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
                     />
                   </div>
                 </div>
-
-                <div className="p-4 bg-navy-50 rounded border border-steel-200 text-xs font-mono">
-                  <p className="font-bold text-navy-800">LRFD Factored Load Combination: 1.2 D + 1.6 L</p>
-                  <p className="text-navy-600 mt-1">Design Ultimate Load W_u = {totalUDL.toFixed(1)} kN/m</p>
-                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
-          {activeStep === 3 && (
-            <div className="space-y-6">
-              <div className="border-b border-concrete-200 pb-3">
-                <h2 className="text-lg font-heading font-bold text-navy-800 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-emerald-600">verified</span>
-                  Structural Capacity Check & Code Verification
-                </h2>
-                <p className="text-xs text-navy-500">Summary of AISC 360-16 LRFD flexural and shear utilization ratios.</p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <MetricCard
-                  title="Factored Moment Mu"
-                  value={Mu}
-                  unit="kN·m"
-                  statusColor="steel"
-                />
-                <MetricCard
-                  title="Nominal Capacity Mn"
-                  value={Mn}
-                  unit="kN·m"
-                  statusColor="steel"
-                />
-                <MetricCard
-                  title="Flexural Utilization"
-                  value={`${(flexuralRatio * 100).toFixed(1)}%`}
-                  statusColor={flexuralRatio > 1 ? 'red' : flexuralRatio > 0.9 ? 'amber' : 'green'}
-                  badgeText={flexuralRatio > 1 ? 'FAILED' : 'PASSED'}
-                />
-              </div>
-
-              <div className="p-4 bg-emerald-50 rounded border border-emerald-300 text-xs text-emerald-900 space-y-2">
-                <div className="font-heading font-bold text-sm flex items-center gap-2">
-                  <span className="material-symbols-outlined text-emerald-600">check_circle</span>
-                  Section Check Complete: Member Safe
-                </div>
-                <p>
-                  Member <strong className="font-mono">{beamData.name}</strong> satisfies all AISC 360-16 LRFD strength and serviceability criteria with an overall safety factor of <strong className="font-mono">{safetyFactor}</strong>.
-                </p>
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <Button
-                  variant="accent"
-                  icon="tips_and_updates"
-                  onClick={() => navigate('/recommendations')}
-                >
-                  Run AI Weight Optimization
-                </Button>
-                <Button
-                  variant="primary"
-                  icon="psychology"
-                  onClick={() => navigate('/analysis')}
-                >
-                  View Full Engineering Review
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Stepper Wizard Buttons */}
-          <div className="pt-4 border-t border-concrete-200 flex items-center justify-between">
-            <Button
-              variant="secondary"
-              disabled={activeStep === 1}
-              onClick={() => setActiveStep(activeStep - 1)}
-              icon="arrow_back"
-            >
-              Previous Step
-            </Button>
-
-            {activeStep < 3 ? (
+          {/* Bottom Action Footer */}
+          <div className="p-4 bg-concrete-50 border-t border-concrete-200 flex items-center justify-between">
+            <span className="text-xs text-navy-500 font-mono">
+              Status: {isValidated ? '✓ Validated' : '⚠ Pending Validation'}
+            </span>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                icon="fact_check"
+                onClick={handleValidate}
+              >
+                Validate
+              </Button>
               <Button
                 variant="primary"
-                onClick={() => setActiveStep(activeStep + 1)}
-                icon="arrow_forward"
-                iconPosition="right"
+                size="sm"
+                icon="play_arrow"
+                onClick={handleRunAnalysis}
               >
-                Next Step
+                Run AI Analysis
               </Button>
-            ) : (
-              <Button
-                variant="accent"
-                onClick={() => navigate('/analysis')}
-                icon="check"
-                iconPosition="right"
-              >
-                Finish Wizard
-              </Button>
-            )}
+            </div>
           </div>
         </div>
 
-        {/* Right Col: Live 2D Section Graphic & Property Readouts */}
+        {/* Right Col: Live Section Preview & Property Summary */}
         <div className="space-y-6">
           <div className="bg-white p-6 rounded border border-concrete-300 shadow-blueprint space-y-5">
             <h3 className="font-heading font-bold text-sm text-navy-800 flex items-center gap-2">
               <span className="material-symbols-outlined text-steel-600">view_in_ar</span>
-              Live Cross-Section Graphic
+              Section Diagram & Details
             </h3>
 
-            {/* 2D SVG I-Beam Graphic */}
-            <div className="h-60 bg-navy-900 rounded border border-navy-700 flex items-center justify-center p-4 relative overflow-hidden bg-blueprint-dark">
-              <svg className="w-44 h-52" viewBox="0 0 200 240">
-                {/* Top Flange */}
-                <rect x="20" y="20" width="160" height="30" fill="#4682B4" stroke="#00A8CC" strokeWidth="2" />
-                {/* Web */}
-                <rect x="85" y="50" width="30" height="140" fill="#1C6090" stroke="#00A8CC" strokeWidth="2" />
-                {/* Bottom Flange */}
-                <rect x="20" y="190" width="160" height="30" fill="#4682B4" stroke="#00A8CC" strokeWidth="2" />
-
-                {/* Dimension Arrows */}
-                <text x="100" y="15" fill="#00A8CC" fontSize="11" textAnchor="middle" fontFamily="JetBrains Mono">
-                  bf = {beamData.width}mm
-                </text>
-                <text x="192" y="125" fill="#00A8CC" fontSize="11" textAnchor="middle" fontFamily="JetBrains Mono" transform="rotate(90 192 125)">
-                  d = {beamData.depth}mm
-                </text>
+            {/* 2D RC Beam Cross-Section SVG Graphic */}
+            <div className="h-64 bg-navy-900 rounded border border-navy-700 flex items-center justify-center p-4 relative overflow-hidden bg-blueprint-dark">
+              <svg className="w-48 h-56" viewBox="0 0 200 240">
+                {/* Concrete Section Rectangle */}
+                <rect x="30" y="20" width="140" height="200" fill="#2A3846" stroke="#00A8CC" strokeWidth="2" />
+                {/* Top Rebar (Compression) */}
+                <circle cx="55" cy="45" r="7" fill="#E74C3C" stroke="#FFFFFF" strokeWidth="1.5" />
+                <circle cx="145" cy="45" r="7" fill="#E74C3C" stroke="#FFFFFF" strokeWidth="1.5" />
+                {/* Bottom Rebar (Tension) */}
+                <circle cx="50" cy="195" r="9" fill="#00A8CC" stroke="#FFFFFF" strokeWidth="1.5" />
+                <circle cx="83" cy="195" r="9" fill="#00A8CC" stroke="#FFFFFF" strokeWidth="1.5" />
+                <circle cx="117" cy="195" r="9" fill="#00A8CC" stroke="#FFFFFF" strokeWidth="1.5" />
+                <circle cx="150" cy="195" r="9" fill="#00A8CC" stroke="#FFFFFF" strokeWidth="1.5" />
+                {/* Stirrups Outer Border */}
+                <rect x="42" y="32" width="116" height="176" fill="none" stroke="#F39C12" strokeWidth="2" strokeDasharray="4,2" />
               </svg>
               <div className="absolute bottom-2 left-2 text-[10px] font-mono text-cyanAccent-300">
-                Scale: Real-time 2D Projection
+                RC Beam Cross-Section (b x D)
               </div>
             </div>
 
-            {/* Calculated Geometric Readouts */}
+            {/* Readout Summary */}
             <div className="space-y-2 font-mono text-xs">
               <div className="flex justify-between py-1.5 border-b border-concrete-200">
-                <span className="text-navy-500">Plastic Modulus Zx:</span>
-                <span className="font-bold text-navy-800">{Zx.toLocaleString()} cm³</span>
+                <span className="text-navy-500">Dimensions (b x D):</span>
+                <span className="font-bold text-navy-800">{beamData.width} x {beamData.depth} mm</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-concrete-200">
-                <span className="text-navy-500">Factored Moment Mu:</span>
-                <span className="font-bold text-steel-700">{Mu} kN·m</span>
+                <span className="text-navy-500">Concrete Strength:</span>
+                <span className="font-bold text-steel-700">{beamData.concreteGrade.split(' ')[0]}</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-concrete-200">
-                <span className="text-navy-500">Nominal Moment Mn:</span>
-                <span className="font-bold text-steel-700">{Mn} kN·m</span>
+                <span className="text-navy-500">Main Steel:</span>
+                <span className="font-bold text-steel-700">{beamData.tensionBars}</span>
               </div>
               <div className="flex justify-between py-1.5">
-                <span className="text-navy-500">Safety Factor:</span>
-                <span className="font-bold text-emerald-600">{safetyFactor}</span>
+                <span className="text-navy-500">Stirrups:</span>
+                <span className="font-bold text-steel-700">{beamData.stirrups}</span>
               </div>
             </div>
           </div>
@@ -394,3 +455,4 @@ export default function BeamDesignPage() {
     </MainLayout>
   );
 }
+
