@@ -1,16 +1,22 @@
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { currentUser } from '../../services/mockData';
+import React from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Sidebar({ collapsed, toggleCollapse }) {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
     { name: 'Projects', path: '/projects', icon: 'folder_open' },
-    { name: 'Beam Models', path: '/beam-design', icon: 'architecture' },
-    { name: 'Analysis', path: '/analysis', icon: 'psychology' },
-    { name: 'Reports', path: '/reports', icon: 'description' },
+    { name: 'Beam Data', path: '/beam-design', icon: 'architecture' },
     { name: 'Settings', path: '/settings', icon: 'settings' },
   ];
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <aside
@@ -30,7 +36,7 @@ export default function Sidebar({ collapsed, toggleCollapse }) {
                 STRUCTURA <span className="text-cyanAccent-400">AI</span>
               </span>
               <span className="text-[10px] font-mono text-navy-300 uppercase tracking-widest mt-1">
-                Precision Decision Platform
+                Structural Analytics
               </span>
             </div>
           )}
@@ -67,28 +73,26 @@ export default function Sidebar({ collapsed, toggleCollapse }) {
         ))}
       </nav>
 
-      {/* User Profile Card Footer */}
+      {/* User Profile Card Footer & Logout */}
       <div className="p-3 border-t border-navy-700 bg-navy-900/50">
         <div className="flex items-center gap-3">
-          <img
-            src={currentUser.avatar}
-            alt={currentUser.name}
-            className="w-8 h-8 rounded border border-steel-400 object-cover shrink-0"
-          />
+          <div className="w-8 h-8 rounded border border-steel-400 bg-steel-600 flex items-center justify-center font-bold text-white text-xs shrink-0">
+            {user?.name?.charAt(0).toUpperCase() || 'U'}
+          </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-heading font-bold text-white truncate">{currentUser.name}</p>
-              <p className="text-[10px] font-mono text-cyanAccent-300 truncate">{currentUser.license}</p>
+              <p className="text-xs font-heading font-bold text-white truncate">{user?.name || 'User'}</p>
+              <p className="text-[10px] font-mono text-cyanAccent-300 truncate">{user?.role || 'Engineer'}</p>
             </div>
           )}
           {!collapsed && (
-            <NavLink
-              to="/login"
-              className="p-1 rounded text-navy-400 hover:text-red-400 hover:bg-navy-800 transition"
+            <button
+              onClick={handleLogout}
+              className="p-1.5 rounded text-navy-400 hover:text-red-400 hover:bg-navy-800 transition"
               title="Logout"
             >
               <span className="material-symbols-outlined text-lg">logout</span>
-            </NavLink>
+            </button>
           )}
         </div>
       </div>

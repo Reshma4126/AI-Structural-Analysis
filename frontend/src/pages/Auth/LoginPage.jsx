@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/common/Button';
+import { useAuth } from '../../context/AuthContext';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { login, register } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
 
   // Form fields
@@ -13,14 +15,31 @@ export default function LoginPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [remember, setRemember] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isSignUp && password !== confirmPassword && confirmPassword.length > 0) {
-      alert('Passwords do not match');
+    setErrorMsg('');
+
+    if (isSignUp && password !== confirmPassword) {
+      setErrorMsg('Passwords do not match');
       return;
     }
-    navigate('/dashboard');
+
+    setSubmitting(true);
+    try {
+      if (isSignUp) {
+        await register(fullName, email, password);
+      } else {
+        await login(email, password);
+      }
+      navigate('/dashboard');
+    } catch (err) {
+      setErrorMsg(err.message || 'Authentication failed. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -44,18 +63,14 @@ export default function LoginPage() {
 
         {/* Middle Hero Copy */}
         <div className="max-w-xl space-y-7 z-10 my-auto">
-
-          {/* Heading */}
           <h2 className="font-heading font-extrabold text-4xl xl:text-5xl text-white leading-[1.15] tracking-tight">
             Enhance Structural Engineering with <span className="text-transparent bg-clip-text bg-gradient-to-r from-steel-300 via-cyanAccent-400 to-white">Explainable AI</span>
           </h2>
 
-          {/* Tagline */}
           <p className="text-navy-200 text-lg leading-relaxed font-body">
             AI-powered structural decision support for reinforced concrete beam evaluation.
           </p>
         </div>
-
 
         {/* Decorative Grid Graphic */}
         <div className="absolute inset-0 pointer-events-none opacity-20">
@@ -84,7 +99,7 @@ export default function LoginPage() {
           <div className="flex border-b border-concrete-300">
             <button
               type="button"
-              onClick={() => setIsSignUp(false)}
+              onClick={() => { setIsSignUp(false); setErrorMsg(''); }}
               className={`pb-3 px-4 text-sm font-heading font-bold transition-all relative ${!isSignUp
                 ? 'text-steel-600 border-b-2 border-steel-500'
                 : 'text-navy-400 hover:text-navy-700'
@@ -94,7 +109,7 @@ export default function LoginPage() {
             </button>
             <button
               type="button"
-              onClick={() => setIsSignUp(true)}
+              onClick={() => { setIsSignUp(true); setErrorMsg(''); }}
               className={`pb-3 px-4 text-sm font-heading font-bold transition-all relative ${isSignUp
                 ? 'text-steel-600 border-b-2 border-steel-500'
                 : 'text-navy-400 hover:text-navy-700'
@@ -105,17 +120,17 @@ export default function LoginPage() {
           </div>
 
           {/* Form Card Header */}
-          {!isSignUp ? (
-            <div>
-              <h2 className="font-heading font-extrabold text-3xl text-navy-900 tracking-tight">
-                Welcome Back!
-              </h2>
-            </div>
-          ) : (
-            <div>
-              <h2 className="font-heading font-extrabold text-3xl text-navy-900 tracking-tight">
-                Create Your Account
-              </h2>
+          <div>
+            <h2 className="font-heading font-extrabold text-3xl text-navy-900 tracking-tight">
+              {!isSignUp ? 'Welcome Back!' : 'Create Your Account'}
+            </h2>
+          </div>
+
+          {/* Error Message Alert */}
+          {errorMsg && (
+            <div className="p-3 bg-red-50 border border-red-300 rounded text-xs text-red-700 font-medium flex items-center gap-2">
+              <span className="material-symbols-outlined text-base">error</span>
+              <span>{errorMsg}</span>
             </div>
           )}
 
@@ -135,7 +150,7 @@ export default function LoginPage() {
                     required={isSignUp}
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="username"
+                    placeholder="John Doe"
                     className="w-full pl-10 pr-4 py-2.5 bg-concrete-50 border border-concrete-300 rounded text-sm text-navy-800 focus:outline-none focus:ring-2 focus:ring-steel-500 focus:bg-white transition"
                   />
                 </div>
@@ -155,7 +170,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="email id"
+                  placeholder="engineer@company.com"
                   className="w-full pl-10 pr-4 py-2.5 bg-concrete-50 border border-concrete-300 rounded text-sm text-navy-800 focus:outline-none focus:ring-2 focus:ring-steel-500 focus:bg-white transition"
                 />
               </div>
@@ -188,7 +203,7 @@ export default function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="password"
+                  placeholder="••••••••"
                   className="w-full pl-10 pr-4 py-2.5 bg-concrete-50 border border-concrete-300 rounded text-sm text-navy-800 focus:outline-none focus:ring-2 focus:ring-steel-500 focus:bg-white transition"
                 />
               </div>
@@ -208,7 +223,7 @@ export default function LoginPage() {
                     required={isSignUp}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="confirm password"
+                    placeholder="••••••••"
                     className="w-full pl-10 pr-4 py-2.5 bg-concrete-50 border border-concrete-300 rounded text-sm text-navy-800 focus:outline-none focus:ring-2 focus:ring-steel-500 focus:bg-white transition"
                   />
                 </div>
@@ -226,9 +241,6 @@ export default function LoginPage() {
                   />
                   <span className="text-xs text-navy-600">Remember this device</span>
                 </label>
-                <span className="text-[11px] font-mono text-cyanAccent-600 bg-cyanAccent-50 px-2 py-0.5 rounded">
-                  SSO Enabled
-                </span>
               </div>
             ) : (
               <div className="pt-1">
@@ -254,8 +266,13 @@ export default function LoginPage() {
               className="w-full justify-center shadow-md py-3 mt-2"
               icon={isSignUp ? 'person_add' : 'login'}
               iconPosition="right"
+              disabled={submitting}
             >
-              {isSignUp ? 'Create Account & Access Workspace' : 'Sign In to Workspace'}
+              {submitting
+                ? 'Processing...'
+                : isSignUp
+                  ? 'Create Account & Access Workspace'
+                  : 'Sign In to Workspace'}
             </Button>
           </form>
 
@@ -266,7 +283,7 @@ export default function LoginPage() {
                 Don't have an account?{' '}
                 <button
                   type="button"
-                  onClick={() => setIsSignUp(true)}
+                  onClick={() => { setIsSignUp(true); setErrorMsg(''); }}
                   className="font-bold text-steel-600 hover:underline"
                 >
                   Create Your Account
@@ -277,7 +294,7 @@ export default function LoginPage() {
                 Already have an account?{' '}
                 <button
                   type="button"
-                  onClick={() => setIsSignUp(false)}
+                  onClick={() => { setIsSignUp(false); setErrorMsg(''); }}
                   className="font-bold text-steel-600 hover:underline"
                 >
                   Sign In
@@ -294,4 +311,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
