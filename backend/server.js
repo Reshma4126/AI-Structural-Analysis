@@ -16,6 +16,7 @@ const authRoutes = require('./routes/authRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const beamRoutes = require('./routes/beamRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const analysisRoutes = require('./routes/analysisRoutes');
 
 // Basic route to test the server
 app.get('/', (req, res) => {
@@ -27,6 +28,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api', beamRoutes); // handles both /api/projects/:projectId/beams and /api/beams/:beamId
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/analysis', analysisRoutes);
 
 // Start the server
 app.listen(PORT, () => {

@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { currentUser } from '../../services/mockData';
+import React from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Sidebar({ collapsed, toggleCollapse }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
     { name: 'Projects', path: '/projects', icon: 'folder_open' },
     { name: 'Beam Models', path: '/beam-design', icon: 'architecture' },
     { name: 'Analysis', path: '/analysis', icon: 'psychology' },
+    { name: 'Comparison', path: '/comparison', icon: 'compare_arrows' },
     { name: 'Reports', path: '/reports', icon: 'description' },
     { name: 'Settings', path: '/settings', icon: 'settings' },
   ];
@@ -71,24 +76,27 @@ export default function Sidebar({ collapsed, toggleCollapse }) {
       <div className="p-3 border-t border-navy-700 bg-navy-900/50">
         <div className="flex items-center gap-3">
           <img
-            src={currentUser.avatar}
-            alt={currentUser.name}
-            className="w-8 h-8 rounded border border-steel-400 object-cover shrink-0"
+            src={user?.avatar || 'https://ui-avatars.com/api/?name=' + (user?.name || 'User') + '&background=00A8CC&color=fff'}
+            alt={user?.name || 'User'}
+            className="w-10 h-10 rounded-full border border-navy-700 object-cover bg-navy-800"
           />
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-heading font-bold text-white truncate">{currentUser.name}</p>
-              <p className="text-[10px] font-mono text-cyanAccent-300 truncate">{currentUser.license}</p>
+              <p className="text-xs font-heading font-bold text-white truncate">{user?.name || 'Engineer'}</p>
+              <p className="text-[10px] font-mono text-cyanAccent-300 truncate">{user?.role || 'User'}</p>
             </div>
           )}
           {!collapsed && (
-            <NavLink
-              to="/login"
-              className="p-1 rounded text-navy-400 hover:text-red-400 hover:bg-navy-800 transition"
-              title="Logout"
+            <button 
+              onClick={() => {
+                logout();
+                navigate('/login');
+              }} 
+              className="w-9 h-9 flex items-center justify-center text-navy-400 hover:text-red-400 hover:bg-navy-800 rounded transition-colors"
+              title="Sign out"
             >
               <span className="material-symbols-outlined text-lg">logout</span>
-            </NavLink>
+            </button>
           )}
         </div>
       </div>

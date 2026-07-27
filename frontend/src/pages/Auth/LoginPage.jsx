@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/common/Button';
+import { useAuth } from '../../context/AuthContext';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { login, register } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
+  const [error, setError] = useState(null);
 
   // Form fields
   const [fullName, setFullName] = useState('');
@@ -14,13 +17,25 @@ export default function LoginPage() {
   const [remember, setRemember] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isSignUp && password !== confirmPassword && confirmPassword.length > 0) {
-      alert('Passwords do not match');
-      return;
+    setError(null);
+    try {
+      if (isSignUp) {
+        if (password !== confirmPassword && confirmPassword.length > 0) {
+          setError('Passwords do not match');
+          return;
+        }
+        await register(fullName, email, password, 'Engineer');
+        setIsSignUp(false);
+        setError('Registration successful! Please sign in.');
+      } else {
+        await login(email, password);
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      setError(err.message || 'An error occurred');
     }
-    navigate('/dashboard');
   };
 
   return (
@@ -116,6 +131,12 @@ export default function LoginPage() {
               <h2 className="font-heading font-extrabold text-3xl text-navy-900 tracking-tight">
                 Create Your Account
               </h2>
+            </div>
+          )}
+
+          {error && (
+            <div className={`p-3 rounded text-sm ${error.includes('successful') ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-red-100 text-red-800 border border-red-300'}`}>
+              {error}
             </div>
           )}
 
