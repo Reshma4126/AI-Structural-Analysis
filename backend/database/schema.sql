@@ -49,3 +49,28 @@ CREATE TABLE IF NOT EXISTS beam_designs (
   FOREIGN KEY (project_id) REFERENCES projects(project_id) ON DELETE CASCADE,
   FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE RESTRICT
 );
+
+-- Analysis Records Table
+CREATE TABLE IF NOT EXISTS analysis_records (
+  analysis_id INT AUTO_INCREMENT PRIMARY KEY,
+  beam_id INT NOT NULL,
+  status ENUM('NOT_STARTED', 'QUEUED', 'RUNNING', 'COMPLETED', 'FAILED', 'PENDING_ML_INTEGRATION') NOT NULL DEFAULT 'NOT_STARTED',
+  prediction_version VARCHAR(50),
+  report_path VARCHAR(255),
+  pmax FLOAT,
+  ultimate_deflection FLOAT,
+  ductility FLOAT,
+  energy_dissipation FLOAT,
+  failure_mode VARCHAR(100),
+  beam_health INT,
+  overall_status VARCHAR(50),
+  ultimate_load_status VARCHAR(50),
+  deflection_status VARCHAR(50),
+  ductility_status VARCHAR(50),
+  energy_status VARCHAR(50),
+  failure_status VARCHAR(50),
+  recommendations TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (beam_id) REFERENCES beam_designs(beam_id) ON DELETE CASCADE
+);

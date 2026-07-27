@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authApi } from '../services/api';
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -18,11 +18,12 @@ export function AuthProvider({ children }) {
           setUser(profile);
         } catch (err) {
           console.error('Failed to load profile:', err);
-          // If token invalid/expired, clear local storage
           localStorage.removeItem('token');
           setToken(null);
           setUser(null);
         }
+      } else {
+        setUser(null);
       }
       setLoading(false);
     }
@@ -46,7 +47,7 @@ export function AuthProvider({ children }) {
   const register = async (name, email, password, role = 'Engineer') => {
     setError(null);
     try {
-      const res = await authApi.register(name, email, password, role);
+      await authApi.register(name, email, password, role);
       // Auto login after registration
       return await login(email, password);
     } catch (err) {

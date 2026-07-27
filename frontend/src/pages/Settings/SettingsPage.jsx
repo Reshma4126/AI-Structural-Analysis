@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
-import { currentUser } from '../../services/mockData';
+import { useAuth } from '../../context/AuthContext';
 
 export default function SettingsPage() {
+  const { user } = useAuth();
   const [unitSystem, setUnitSystem] = useState('Metric'); // 'Metric' | 'Imperial'
   const [defaultCode, setDefaultCode] = useState('AISC 360-16 LRFD');
   const [aiConfidenceThreshold, setAiConfidenceThreshold] = useState(85);
@@ -154,19 +155,19 @@ export default function SettingsPage() {
 
             <div className="flex items-center gap-4">
               <img
-                src={currentUser.avatar}
-                alt={currentUser.name}
-                className="w-14 h-14 rounded-full border-2 border-steel-500 object-cover"
+                src={user?.avatar || 'https://ui-avatars.com/api/?name=' + (user?.name || 'User') + '&background=00A8CC&color=fff'}
+                alt={user?.name || 'User'}
+                className="w-20 h-20 rounded-full border border-concrete-300 object-cover"
               />
               <div>
-                <h4 className="font-heading font-bold text-base text-navy-900">{currentUser.name}</h4>
-                <p className="text-xs text-navy-500 font-body">{currentUser.role}</p>
-                <Badge variant="green" size="sm" className="mt-1">{currentUser.license}</Badge>
+                <h4 className="font-heading font-bold text-base text-navy-900">{user?.name || 'Engineer'}</h4>
+                <p className="text-xs text-navy-500 font-body">{user?.role || 'User'}</p>
+                <Badge variant="green" size="sm" className="mt-1">Standard License</Badge>
               </div>
             </div>
 
             <div className="pt-3 border-t border-concrete-200 text-xs font-mono space-y-1 text-navy-600">
-              <div>Organization: <strong className="text-navy-800">{currentUser.company}</strong></div>
+              <div>Organization: <strong className="text-navy-800">{user?.company || 'Structura AI'}</strong></div>
               <div>License Type: <strong className="text-cyanAccent-700">Enterprise AI License</strong></div>
               <div>Expiration: <strong className="text-navy-800">December 2027</strong></div>
             </div>

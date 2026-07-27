@@ -7,6 +7,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { login, register } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
+  const [error, setError] = useState(null);
 
   // Form fields
   const [fullName, setFullName] = useState('');
@@ -21,6 +22,7 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
+    setError(null);
 
     if (isSignUp && password !== confirmPassword) {
       setErrorMsg('Passwords do not match');
@@ -30,7 +32,7 @@ export default function LoginPage() {
     setSubmitting(true);
     try {
       if (isSignUp) {
-        await register(fullName, email, password);
+        await register(fullName, email, password, 'Engineer');
       } else {
         await login(email, password);
       }
@@ -131,6 +133,12 @@ export default function LoginPage() {
             <div className="p-3 bg-red-50 border border-red-300 rounded text-xs text-red-700 font-medium flex items-center gap-2">
               <span className="material-symbols-outlined text-base">error</span>
               <span>{errorMsg}</span>
+            </div>
+          )}
+
+          {error && (
+            <div className={`p-3 rounded text-sm ${error.includes('successful') ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-red-100 text-red-800 border border-red-300'}`}>
+              {error}
             </div>
           )}
 

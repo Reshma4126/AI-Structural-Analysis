@@ -9,7 +9,14 @@ export default function Sidebar({ collapsed, toggleCollapse }) {
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
     { name: 'Projects', path: '/projects', icon: 'folder_open' },
-    { name: 'Beam Data', path: '/beam-design', icon: 'architecture' },
+    { name: 'Beam Models', path: '/beam-design', icon: 'architecture' },
+    { name: 'Analysis', path: '/analysis', icon: 'psychology' },
+    { name: 'Comparison', path: '/comparison', icon: 'compare_arrows' },
+    { name: 'Evaluation', path: '/evaluation', icon: 'fact_check' },
+    { name: 'Recommendations', path: '/recommendations', icon: 'tips_and_updates' },
+    { name: 'XAI', path: '/xai', icon: 'auto_awesome' },
+    { name: 'Reports', path: '/reports', icon: 'description' },
+    { name: 'History', path: '/history', icon: 'history' },
     { name: 'Settings', path: '/settings', icon: 'settings' },
   ];
 
@@ -76,20 +83,30 @@ export default function Sidebar({ collapsed, toggleCollapse }) {
       {/* User Profile Card Footer & Logout */}
       <div className="p-3 border-t border-navy-700 bg-navy-900/50">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded border border-steel-400 bg-steel-600 flex items-center justify-center font-bold text-white text-xs shrink-0">
-            {user?.name?.charAt(0).toUpperCase() || 'U'}
-          </div>
-          {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-heading font-bold text-white truncate">{user?.name || 'User'}</p>
-              <p className="text-[10px] font-mono text-cyanAccent-300 truncate">{user?.role || 'Engineer'}</p>
+          {user?.avatar ? (
+            <img
+              src={user.avatar}
+              alt={user?.name || 'User'}
+              className="w-8 h-8 rounded-full border border-navy-700 object-cover bg-navy-800 shrink-0"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded border border-steel-400 bg-steel-600 flex items-center justify-center font-bold text-white text-xs shrink-0">
+              {user?.name?.charAt(0).toUpperCase() || 'U'}
             </div>
           )}
+
+          {!collapsed && (
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-heading font-bold text-white truncate">{user?.name || 'Engineer'}</p>
+              <p className="text-[10px] font-mono text-cyanAccent-300 truncate">{user?.role || 'User'}</p>
+            </div>
+          )}
+
           {!collapsed && (
             <button
               onClick={handleLogout}
-              className="p-1.5 rounded text-navy-400 hover:text-red-400 hover:bg-navy-800 transition"
-              title="Logout"
+              className="w-8 h-8 flex items-center justify-center rounded text-navy-400 hover:text-red-400 hover:bg-navy-800 transition shrink-0"
+              title="Sign out"
             >
               <span className="material-symbols-outlined text-lg">logout</span>
             </button>

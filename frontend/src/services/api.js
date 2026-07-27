@@ -41,6 +41,9 @@ export async function apiFetch(endpoint, options = {}) {
   return data;
 }
 
+export const fetchApi = apiFetch;
+export default apiFetch;
+
 // Authentication API
 export const authApi = {
   login: (email, password) =>
