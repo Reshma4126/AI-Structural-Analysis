@@ -9,7 +9,7 @@ export default function Sidebar({ collapsed, toggleCollapse }) {
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
     { name: 'Projects', path: '/projects', icon: 'folder_open' },
-    { name: 'Beam Models', path: '/beam-design', icon: 'architecture' },
+    { name: 'Beam Input', path: '/beam-design', icon: 'architecture' },
     { name: 'Analysis', path: '/analysis', icon: 'psychology' },
     { name: 'Comparison', path: '/comparison', icon: 'compare_arrows' },
     { name: 'Evaluation', path: '/evaluation', icon: 'fact_check' },

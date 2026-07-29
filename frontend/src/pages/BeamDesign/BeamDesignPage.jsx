@@ -3,48 +3,37 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import MainLayout from '../../components/layout/MainLayout';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
-import Modal from '../../components/common/Modal';
 import { projectsApi, beamsApi } from '../../services/api';
 
 export default function BeamDesignPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // State
+  // Projects State
   const [projects, setProjects] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState(location.state?.projectId || '');
-  const [beams, setBeams] = useState([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
-  const [loadingBeams, setLoadingBeams] = useState(false);
 
-  // Form / Edit Mode
-  const [activeView, setActiveView] = useState('list'); // 'list' | 'form'
-  const [editingBeamId, setEditingBeamId] = useState(null);
-  const [activeTab, setActiveTab] = useState('geometry'); // 'geometry' | 'material' | 'reinforcement' | 'loading'
+  // Form State for Beam Input
+  const [beamName, setBeamName] = useState('Beam B-101');
+  const [width, setWidth] = useState(300); // b (mm)
+  const [depth, setDepth] = useState(450); // h (mm)
+  const [span, setSpan] = useState(5000); // L (mm)
+  const [concreteStrength, setConcreteStrength] = useState(30); // fc (MPa)
+  
+  // Longitudinal Reinforcement
+  const [numTensileBars, setNumTensileBars] = useState(4);
+  const [diameterTensileBars, setDiameterTensileBars] = useState(20);
+  const [fyLongitudinalBars, setFyLongitudinalBars] = useState(500); // fy (MPa)
 
-  // Beam Form Data
-  const defaultBeamForm = {
-    beam_name: '',
-    beam_width: 300,
-    beam_depth: 600,
-    beam_length: 6.0,
-    cover: 25,
-    concrete_grade: 'M30',
-    steel_grade: 'Fe500',
-    number_of_tensile_bars: 4,
-    diameter_tensile_bars: 20,
-    number_of_compression_bars: 2,
-    diameter_compression_bars: 12,
-    stirrup_diameter: 8,
-    stirrup_spacing: 150,
-    loading_type: 'Uniformly Distributed Load (UDL)',
-    applied_load: 25.0,
-  };
+  // Shear Reinforcement
+  const [numStirrupLegs, setNumStirrupLegs] = useState(2);
+  const [stirrupDiameter, setStirrupDiameter] = useState(8);
+  const [stirrupSpacing, setStirrupSpacing] = useState(150); // s (mm)
+  const [fyStirrupBars, setFyStirrupBars] = useState(415); // fyv (MPa)
 
-  const [formData, setFormData] = useState(defaultBeamForm);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
 
   // Fetch projects on load
   useEffect(() => {
@@ -52,12 +41,14 @@ export default function BeamDesignPage() {
       try {
         setLoadingProjects(true);
         const data = await projectsApi.getAll();
-        setProjects(data || []);
-        if (data && data.length > 0 && !selectedProjectId) {
-          setSelectedProjectId(data[0].id);
+        const prjList = Array.isArray(data) ? data : [];
+        setProjects(prjList);
+        if (prjList.length > 0 && !selectedProjectId) {
+          setSelectedProjectId(prjList[0].id);
         }
       } catch (err) {
         console.error('Failed to load projects:', err);
+        setProjects([]);
       } finally {
         setLoadingProjects(false);
       }
@@ -65,106 +56,74 @@ export default function BeamDesignPage() {
     loadProjects();
   }, []);
 
-  // Fetch beams whenever selected project changes
-  useEffect(() => {
-    if (selectedProjectId) {
-      fetchBeams(selectedProjectId);
-    } else {
-      setBeams([]);
-    }
-  }, [selectedProjectId]);
+  // Derived Calculations
+  const ast = (numTensileBars * Math.PI * Math.pow(diameterTensileBars, 2)) / 4;
+  const reinforcementRatio = (width > 0 && depth > 0) ? ((ast / (width * depth)) * 100).toFixed(2) : '0.00';
 
-  const fetchBeams = async (projectId) => {
-    try {
-      setLoadingBeams(true);
-      const data = await beamsApi.getByProject(projectId);
-      setBeams(data || []);
-    } catch (err) {
-      console.error('Failed to fetch beams:', err);
-    } finally {
-      setLoadingBeams(false);
-    }
-  };
-
-  const handleStartAddBeam = () => {
-    if (!selectedProjectId) {
-      alert('Please select a project first.');
-      return;
-    }
-    setEditingBeamId(null);
-    setFormData({
-      ...defaultBeamForm,
-      beam_name: `Beam B-${beams.length + 101}`,
-    });
-    setErrorMsg('');
-    setSuccessMsg('');
-    setActiveView('form');
-    setActiveTab('geometry');
-  };
-
-  const handleStartEditBeam = (beam) => {
-    setEditingBeamId(beam.id);
-    setFormData({
-      beam_name: beam.beam_name || '',
-      beam_width: beam.beam_width || 300,
-      beam_depth: beam.beam_depth || 600,
-      beam_length: beam.beam_length || 6.0,
-      cover: beam.cover || 25,
-      concrete_grade: beam.concrete_grade || 'M30',
-      steel_grade: beam.steel_grade || 'Fe500',
-      number_of_tensile_bars: beam.number_of_tensile_bars || 4,
-      diameter_tensile_bars: beam.diameter_tensile_bars || 20,
-      number_of_compression_bars: beam.number_of_compression_bars || 2,
-      diameter_compression_bars: beam.diameter_compression_bars || 12,
-      stirrup_diameter: beam.stirrup_diameter || 8,
-      stirrup_spacing: beam.stirrup_spacing || 150,
-      loading_type: beam.loading_type || 'Uniformly Distributed Load (UDL)',
-      applied_load: beam.applied_load || 25.0,
-    });
-    setErrorMsg('');
-    setSuccessMsg('');
-    setActiveView('form');
-    setActiveTab('geometry');
-  };
-
-  const handleDeleteBeam = async (beamId) => {
-    if (!window.confirm('Are you sure you want to delete this beam design?')) return;
-    try {
-      await beamsApi.delete(beamId);
-      fetchBeams(selectedProjectId);
-    } catch (err) {
-      alert(err.message || 'Failed to delete beam');
+  // Apply Presets
+  const applyPreset = (preset) => {
+    if (preset === 'small') {
+      setWidth(200); setDepth(300); setSpan(3000); setConcreteStrength(20);
+      setNumTensileBars(2); setDiameterTensileBars(12); setFyLongitudinalBars(415);
+      setNumStirrupLegs(2); setStirrupDiameter(6); setStirrupSpacing(200); setFyStirrupBars(250);
+    } else if (preset === 'medium') {
+      setWidth(300); setDepth(450); setSpan(5000); setConcreteStrength(30);
+      setNumTensileBars(4); setDiameterTensileBars(20); setFyLongitudinalBars(500);
+      setNumStirrupLegs(2); setStirrupDiameter(8); setStirrupSpacing(150); setFyStirrupBars(415);
+    } else if (preset === 'large') {
+      setWidth(450); setDepth(750); setSpan(8000); setConcreteStrength(50);
+      setNumTensileBars(8); setDiameterTensileBars(25); setFyLongitudinalBars(550);
+      setNumStirrupLegs(4); setStirrupDiameter(10); setStirrupSpacing(100); setFyStirrupBars(500);
     }
   };
 
-  const handleSaveBeam = async (e) => {
+  const handleSaveAndAnalyze = async (e) => {
     e.preventDefault();
-    if (!selectedProjectId) return;
-
     setSubmitting(true);
     setErrorMsg('');
-    setSuccessMsg('');
+
+    const beamParams = {
+      width: parseFloat(width),
+      depth: parseFloat(depth),
+      span: parseFloat(span),
+      concrete_strength: parseFloat(concreteStrength),
+      num_tensile_bars: parseInt(numTensileBars),
+      diameter_tensile_bars: parseInt(diameterTensileBars),
+      tension_reinforcement_ratio: parseFloat(reinforcementRatio),
+      num_stirrup_legs: parseInt(numStirrupLegs),
+      stirrup_spacing: parseFloat(stirrupSpacing),
+      stirrup_diameter: parseFloat(stirrupDiameter),
+      fy_longitudinal_bars: parseFloat(fyLongitudinalBars),
+      fy_stirrup_bars: parseFloat(fyStirrupBars)
+    };
 
     try {
-      if (editingBeamId) {
-        await beamsApi.update(editingBeamId, formData);
-        setSuccessMsg('✓ Beam design successfully updated.');
-      } else {
-        await beamsApi.create(selectedProjectId, formData);
-        setSuccessMsg('✓ Beam design successfully created.');
+      if (selectedProjectId) {
+        await beamsApi.create(selectedProjectId, {
+          beam_name: beamName,
+          beam_width: width,
+          beam_depth: depth,
+          beam_length: span / 1000,
+          concrete_grade: `M${concreteStrength}`,
+          steel_grade: `Fe${fyLongitudinalBars}`,
+          number_of_tensile_bars: numTensileBars,
+          diameter_tensile_bars: diameterTensileBars,
+          stirrup_diameter: stirrupDiameter,
+          stirrup_spacing: stirrupSpacing,
+          applied_load: 30.0
+        }).catch(err => console.warn('Beam save warning:', err));
       }
 
-      fetchBeams(selectedProjectId);
-      setTimeout(() => {
-        setActiveView('list');
-      }, 1200);
+      // Automatic Redirect to Analysis Page with Beam Parameters attached
+      navigate('/analysis', {
+        state: {
+          beamParams,
+          beamName,
+          autoRun: true
+        }
+      });
     } catch (err) {
-      if (err.data?.errors) {
-        setErrorMsg(err.data.errors.join(' '));
-      } else {
-        setErrorMsg(err.message || 'Failed to save beam data.');
-      }
-    } finally {
+      setErrorMsg(err.message || 'Failed to save beam data.');
       setSubmitting(false);
     }
   };
@@ -173,58 +132,38 @@ export default function BeamDesignPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        {/* Header Bar */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded border border-concrete-300 shadow-blueprint">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-mono text-steel-600 font-bold uppercase mb-1">
-              MODULE 3 • BEAM DATA MANAGEMENT
-            </div>
-            <h1 className="text-2xl font-heading font-extrabold text-navy-900 tracking-tight">
-              Beam Member Repository & Inputs
-            </h1>
-            <p className="text-xs text-navy-500 mt-1">
-              Select a project and configure geometric dimensions, material grades, reinforcement layout, and loading.
-            </p>
+      <div className="space-y-6 max-w-5xl mx-auto">
+        
+        {/* Header Hero Section */}
+        <div className="bg-white p-6 rounded border border-concrete-300 shadow-blueprint space-y-2">
+          <div className="flex items-center gap-2 text-xs font-mono text-steel-600 font-bold uppercase">
+            <span className="w-2 h-2 rounded-full bg-steel-500"></span>
+            STEP 3 • BEAM INPUT
           </div>
-
-          <div className="flex items-center gap-3">
-            {activeView === 'form' ? (
-              <Button
-                variant="outline"
-                icon="arrow_back"
-                onClick={() => setActiveView('list')}
-              >
-                Back to Beam List
-              </Button>
-            ) : (
-              <Button
-                variant="primary"
-                icon="add"
-                onClick={handleStartAddBeam}
-                disabled={!selectedProjectId}
-              >
-                + Add Beam
-              </Button>
-            )}
-          </div>
+          <h1 className="text-3xl font-heading font-extrabold text-navy-900 tracking-tight">
+            Beam Input
+          </h1>
+          <p className="text-xs text-navy-600 font-body leading-relaxed max-w-3xl">
+            Configure the reinforced concrete beam geometry, material properties, reinforcement details, and loading parameters for AI structural analysis.
+          </p>
         </div>
 
-        {/* Project Selector Header */}
-        <div className="bg-white p-4 rounded border border-concrete-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        {/* Project Context & Presets Bar */}
+        <div className="bg-white p-4 rounded border border-concrete-300 shadow-blueprint flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <span className="text-xs font-heading font-bold text-navy-700 uppercase shrink-0">
               Active Project:
             </span>
             {loadingProjects ? (
               <span className="text-xs font-mono text-navy-400">Loading projects...</span>
+            ) : projects.length === 0 ? (
+              <span className="text-xs font-mono text-amber-600 font-bold">No Active Projects</span>
             ) : (
               <select
                 value={selectedProjectId}
                 onChange={(e) => setSelectedProjectId(e.target.value)}
                 className="w-full sm:w-72 px-3 py-1.5 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-medium focus:outline-none focus:ring-2 focus:ring-steel-500"
               >
-                <option value="">-- Select a Project --</option>
                 {projects.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.project_name}
@@ -234,443 +173,259 @@ export default function BeamDesignPage() {
             )}
           </div>
 
-          {selectedProject && (
-            <div className="text-xs font-mono text-navy-500">
-              Project ID: <span className="font-bold text-navy-800">{selectedProject.id}</span>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono text-navy-500">Presets:</span>
+            <button
+              type="button"
+              onClick={() => applyPreset('small')}
+              className="px-2.5 py-1 text-xs font-mono font-bold bg-concrete-100 hover:bg-steel-100 text-navy-800 rounded border border-concrete-300 transition"
+            >
+              Small (200x300)
+            </button>
+            <button
+              type="button"
+              onClick={() => applyPreset('medium')}
+              className="px-2.5 py-1 text-xs font-mono font-bold bg-concrete-100 hover:bg-steel-100 text-navy-800 rounded border border-concrete-300 transition"
+            >
+              Medium (300x450)
+            </button>
+            <button
+              type="button"
+              onClick={() => applyPreset('large')}
+              className="px-2.5 py-1 text-xs font-mono font-bold bg-concrete-100 hover:bg-steel-100 text-navy-800 rounded border border-concrete-300 transition"
+            >
+              Large (450x750)
+            </button>
+          </div>
         </div>
 
-        {/* View Switcher: Beam List or Beam Details Form */}
-        {activeView === 'list' ? (
-          /* BEAM LIST VIEW */
-          <div className="bg-white rounded border border-concrete-300 shadow-blueprint p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-concrete-200 pb-3">
-              <h2 className="text-lg font-heading font-bold text-navy-900">
-                Beams in Selected Project ({beams.length})
-              </h2>
-              {selectedProjectId && (
-                <Button
-                  variant="primary"
-                  size="sm"
-                  icon="add"
-                  onClick={handleStartAddBeam}
-                >
-                  Add Beam
-                </Button>
-              )}
+        {/* Empty State: If No Project Exists */}
+        {!loadingProjects && projects.length === 0 ? (
+          <div className="bg-white p-12 text-center rounded border border-concrete-300 shadow-blueprint space-y-4">
+            <div className="w-14 h-14 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 mx-auto">
+              <span className="material-symbols-outlined text-3xl">folder_open</span>
             </div>
-
-            {!selectedProjectId ? (
-              <div className="py-12 text-center text-xs font-mono text-navy-400">
-                Please select or create a project to view and manage beam members.
-              </div>
-            ) : loadingBeams ? (
-              <div className="py-12 text-center text-xs font-mono text-navy-400">
-                Loading beam models...
-              </div>
-            ) : beams.length === 0 ? (
-              <div className="py-12 text-center space-y-3">
-                <span className="material-symbols-outlined text-4xl text-navy-300">architecture</span>
-                <p className="text-sm font-heading font-semibold text-navy-700">No beams added yet</p>
-                <p className="text-xs text-navy-500">Click "Add Beam" above to input parameters for your first beam.</p>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  icon="add"
-                  onClick={handleStartAddBeam}
-                >
-                  Add Beam
-                </Button>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs font-body">
-                  <thead className="bg-navy-50 border-b border-concrete-200 font-heading font-bold text-navy-700 uppercase tracking-wider">
-                    <tr>
-                      <th className="p-3">Beam Name</th>
-                      <th className="p-3">Dimensions (b x D x L)</th>
-                      <th className="p-3">Grades (Conc / Steel)</th>
-                      <th className="p-3">Reinforcement</th>
-                      <th className="p-3">Applied Load</th>
-                      <th className="p-3 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-concrete-100 font-mono">
-                    {beams.map((b) => (
-                      <tr key={b.id} className="hover:bg-steel-50/50 transition">
-                        <td className="p-3 font-heading font-bold text-navy-900 font-sans">
-                          {b.beam_name}
-                        </td>
-                        <td className="p-3 text-navy-800">
-                          {b.beam_width} × {b.beam_depth} mm (L={b.beam_length}m)
-                        </td>
-                        <td className="p-3 text-navy-800">
-                          {b.concrete_grade} / {b.steel_grade}
-                        </td>
-                        <td className="p-3 text-navy-700">
-                          {b.number_of_tensile_bars}T{b.diameter_tensile_bars} Bottom, {b.number_of_compression_bars}T{b.diameter_compression_bars} Top
-                        </td>
-                        <td className="p-3 text-steel-700 font-bold">
-                          {b.applied_load} kN ({b.loading_type?.split(' ')[0]})
-                        </td>
-                        <td className="p-3 text-right font-sans flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => handleStartEditBeam(b)}
-                            className="p-1 rounded text-navy-500 hover:text-steel-600 hover:bg-concrete-100 transition"
-                            title="Edit Beam Details"
-                          >
-                            <span className="material-symbols-outlined text-base">edit</span>
-                          </button>
-                          <button
-                            onClick={() => handleDeleteBeam(b.id)}
-                            className="p-1 rounded text-navy-500 hover:text-red-600 hover:bg-concrete-100 transition"
-                            title="Delete Beam"
-                          >
-                            <span className="material-symbols-outlined text-base">delete</span>
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            <div className="space-y-1">
+              <h3 className="font-heading font-bold text-base text-navy-900">Create a project first before entering beam details.</h3>
+              <p className="text-xs text-navy-500 max-w-md mx-auto">
+                All beam input parameters are associated with a structural project workspace.
+              </p>
+            </div>
+            <Button variant="primary" icon="add" onClick={() => navigate('/projects')}>
+              Go to Projects & Create One
+            </Button>
           </div>
         ) : (
-          /* BEAM DETAILS FORM VIEW */
-          <form onSubmit={handleSaveBeam} className="space-y-6">
+          /* Beam Input Form */
+          <form onSubmit={handleSaveAndAnalyze} className="space-y-6">
+            
             {errorMsg && (
-              <div className="p-4 bg-red-50 border border-red-300 rounded text-xs text-red-700 font-medium flex items-center gap-2">
-                <span className="material-symbols-outlined text-base">error</span>
-                <span>{errorMsg}</span>
+              <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded font-mono">
+                {errorMsg}
               </div>
             )}
 
-            {successMsg && (
-              <div className="p-4 bg-emerald-50 border border-emerald-300 rounded text-xs text-emerald-800 font-medium flex items-center gap-2">
-                <span className="material-symbols-outlined text-base">check_circle</span>
-                <span>{successMsg}</span>
-              </div>
-            )}
-
-            <div className="bg-white rounded border border-concrete-300 shadow-blueprint overflow-hidden flex flex-col">
-              {/* Section Tabs */}
-              <div className="flex border-b border-concrete-200 bg-concrete-50 overflow-x-auto">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('geometry')}
-                  className={`px-5 py-3 text-xs font-heading font-bold transition flex items-center gap-2 border-b-2 whitespace-nowrap ${
-                    activeTab === 'geometry'
-                      ? 'border-steel-500 text-steel-600 bg-white'
-                      : 'border-transparent text-navy-500 hover:text-navy-800'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-base">architecture</span>
-                  1. Geometry & Cover
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('material')}
-                  className={`px-5 py-3 text-xs font-heading font-bold transition flex items-center gap-2 border-b-2 whitespace-nowrap ${
-                    activeTab === 'material'
-                      ? 'border-steel-500 text-steel-600 bg-white'
-                      : 'border-transparent text-navy-500 hover:text-navy-800'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-base">science</span>
-                  2. Concrete & Steel Grade
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('reinforcement')}
-                  className={`px-5 py-3 text-xs font-heading font-bold transition flex items-center gap-2 border-b-2 whitespace-nowrap ${
-                    activeTab === 'reinforcement'
-                      ? 'border-steel-500 text-steel-600 bg-white'
-                      : 'border-transparent text-navy-500 hover:text-navy-800'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-base">grid_4x4</span>
-                  3. Reinforcement Details
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('loading')}
-                  className={`px-5 py-3 text-xs font-heading font-bold transition flex items-center gap-2 border-b-2 whitespace-nowrap ${
-                    activeTab === 'loading'
-                      ? 'border-steel-500 text-steel-600 bg-white'
-                      : 'border-transparent text-navy-500 hover:text-navy-800'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-base">download</span>
-                  4. Loading Information
-                </button>
+            <div className="bg-white rounded border border-concrete-300 shadow-blueprint p-6 space-y-6">
+              
+              {/* Beam Name */}
+              <div>
+                <label className="block text-xs font-heading font-bold text-navy-800 uppercase mb-1">
+                  Beam Designation / Mark Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={beamName}
+                  onChange={(e) => setBeamName(e.target.value)}
+                  placeholder="e.g. Beam B-101 (Transfer Girder)"
+                  className="w-full max-w-md px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-900 font-bold focus:outline-none focus:ring-2 focus:ring-steel-500"
+                />
               </div>
 
-              {/* Form Content Body */}
-              <div className="p-6 space-y-6 flex-1">
-                {activeTab === 'geometry' && (
-                  <div className="space-y-5">
-                    <h3 className="font-heading font-bold text-sm text-navy-900 border-b border-concrete-200 pb-2">
-                      Beam Identifier & Geometric Dimensions
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                          Beam Name / Designation *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={formData.beam_name}
-                          onChange={(e) => setFormData({ ...formData, beam_name: e.target.value })}
-                          placeholder="e.g. Beam B-101"
-                          className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 focus:ring-2 focus:ring-steel-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                          Span Length (m) *
-                        </label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          required
-                          value={formData.beam_length}
-                          onChange={(e) => setFormData({ ...formData, beam_length: parseFloat(e.target.value) || 0 })}
-                          className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                          Section Width b (mm) *
-                        </label>
-                        <input
-                          type="number"
-                          required
-                          value={formData.beam_width}
-                          onChange={(e) => setFormData({ ...formData, beam_width: parseInt(e.target.value) || 0 })}
-                          className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                          Overall Depth D (mm) *
-                        </label>
-                        <input
-                          type="number"
-                          required
-                          value={formData.beam_depth}
-                          onChange={(e) => setFormData({ ...formData, beam_depth: parseInt(e.target.value) || 0 })}
-                          className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                          Nominal Cover (mm) *
-                        </label>
-                        <input
-                          type="number"
-                          required
-                          value={formData.cover}
-                          onChange={(e) => setFormData({ ...formData, cover: parseInt(e.target.value) || 0 })}
-                          className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
-                        />
-                      </div>
-                    </div>
+              {/* 1. Geometry Section */}
+              <div className="space-y-3 pt-2 border-t border-concrete-200">
+                <h3 className="text-sm font-heading font-bold text-navy-900 uppercase tracking-wider flex items-center gap-2 border-l-4 border-steel-500 pl-3">
+                  <span className="material-symbols-outlined text-base text-steel-600">architecture</span>
+                  1. Geometry Parameters
+                </h3>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs">
+                  <div>
+                    <label className="block text-navy-700 font-bold uppercase mb-1">Width (b, mm) *</label>
+                    <input
+                      type="number"
+                      required
+                      value={width}
+                      onChange={(e) => setWidth(e.target.value)}
+                      className="w-full p-2.5 bg-concrete-50 border border-concrete-300 rounded text-navy-900 font-bold focus:bg-white focus:ring-1 focus:ring-steel-500"
+                    />
                   </div>
-                )}
-
-                {activeTab === 'material' && (
-                  <div className="space-y-5">
-                    <h3 className="font-heading font-bold text-sm text-navy-900 border-b border-concrete-200 pb-2">
-                      Material Grades & Specification
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                          Concrete Grade *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={formData.concrete_grade}
-                          onChange={(e) => setFormData({ ...formData, concrete_grade: e.target.value })}
-                          placeholder="e.g. M30 or C30/37"
-                          className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                          Steel Rebar Grade *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={formData.steel_grade}
-                          onChange={(e) => setFormData({ ...formData, steel_grade: e.target.value })}
-                          placeholder="e.g. Fe500 or Grade 60"
-                          className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
-                        />
-                      </div>
-                    </div>
+                  <div>
+                    <label className="block text-navy-700 font-bold uppercase mb-1">Overall Depth (h, mm) *</label>
+                    <input
+                      type="number"
+                      required
+                      value={depth}
+                      onChange={(e) => setDepth(e.target.value)}
+                      className="w-full p-2.5 bg-concrete-50 border border-concrete-300 rounded text-navy-900 font-bold focus:bg-white focus:ring-1 focus:ring-steel-500"
+                    />
                   </div>
-                )}
-
-                {activeTab === 'reinforcement' && (
-                  <div className="space-y-5">
-                    <h3 className="font-heading font-bold text-sm text-navy-900 border-b border-concrete-200 pb-2">
-                      Longitudinal & Shear Reinforcement Layout
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                          Number of Tensile Bars *
-                        </label>
-                        <input
-                          type="number"
-                          required
-                          value={formData.number_of_tensile_bars}
-                          onChange={(e) => setFormData({ ...formData, number_of_tensile_bars: parseInt(e.target.value) || 0 })}
-                          className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                          Tensile Bar Diameter (mm) *
-                        </label>
-                        <input
-                          type="number"
-                          required
-                          value={formData.diameter_tensile_bars}
-                          onChange={(e) => setFormData({ ...formData, diameter_tensile_bars: parseInt(e.target.value) || 0 })}
-                          className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                          Number of Compression Bars *
-                        </label>
-                        <input
-                          type="number"
-                          required
-                          value={formData.number_of_compression_bars}
-                          onChange={(e) => setFormData({ ...formData, number_of_compression_bars: parseInt(e.target.value) || 0 })}
-                          className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                          Compression Bar Diameter (mm) *
-                        </label>
-                        <input
-                          type="number"
-                          required
-                          value={formData.diameter_compression_bars}
-                          onChange={(e) => setFormData({ ...formData, diameter_compression_bars: parseInt(e.target.value) || 0 })}
-                          className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                          Stirrup Diameter (mm) *
-                        </label>
-                        <input
-                          type="number"
-                          required
-                          value={formData.stirrup_diameter}
-                          onChange={(e) => setFormData({ ...formData, stirrup_diameter: parseInt(e.target.value) || 0 })}
-                          className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                          Stirrup Spacing (mm) *
-                        </label>
-                        <input
-                          type="number"
-                          required
-                          value={formData.stirrup_spacing}
-                          onChange={(e) => setFormData({ ...formData, stirrup_spacing: parseInt(e.target.value) || 0 })}
-                          className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
-                        />
-                      </div>
-                    </div>
+                  <div>
+                    <label className="block text-navy-700 font-bold uppercase mb-1">Clear Span Length (L, mm) *</label>
+                    <input
+                      type="number"
+                      required
+                      value={span}
+                      onChange={(e) => setSpan(e.target.value)}
+                      className="w-full p-2.5 bg-concrete-50 border border-concrete-300 rounded text-navy-900 font-bold focus:bg-white focus:ring-1 focus:ring-steel-500"
+                    />
                   </div>
-                )}
-
-                {activeTab === 'loading' && (
-                  <div className="space-y-5">
-                    <h3 className="font-heading font-bold text-sm text-navy-900 border-b border-concrete-200 pb-2">
-                      Loading Information & Design Conditions
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                          Loading Type *
-                        </label>
-                        <select
-                          value={formData.loading_type}
-                          onChange={(e) => setFormData({ ...formData, loading_type: e.target.value })}
-                          className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 focus:ring-2 focus:ring-steel-500"
-                        >
-                          <option value="Uniformly Distributed Load (UDL)">Uniformly Distributed Load (UDL)</option>
-                          <option value="Point Load at Midspan">Point Load at Midspan</option>
-                          <option value="Combined UDL & Point Load">Combined UDL & Point Load</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-heading font-bold text-navy-700 uppercase mb-1">
-                          Applied Load (kN or kN/m) *
-                        </label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          required
-                          value={formData.applied_load}
-                          onChange={(e) => setFormData({ ...formData, applied_load: parseFloat(e.target.value) || 0 })}
-                          className="w-full px-3 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-800 font-mono focus:ring-2 focus:ring-steel-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
+                </div>
               </div>
 
-              {/* Form Action Footer */}
-              <div className="p-4 bg-concrete-50 border-t border-concrete-200 flex items-center justify-between">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setActiveView('list')}
-                >
-                  Cancel
-                </Button>
+              {/* 2. Concrete Section */}
+              <div className="space-y-3 pt-4 border-t border-concrete-200">
+                <h3 className="text-sm font-heading font-bold text-navy-900 uppercase tracking-wider flex items-center gap-2 border-l-4 border-cyanAccent-500 pl-3">
+                  <span className="material-symbols-outlined text-base text-cyanAccent-600">science</span>
+                  2. Concrete Specification
+                </h3>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono text-xs">
+                  <div>
+                    <label className="block text-navy-700 font-bold uppercase mb-1">Characteristic Strength (fc / fck, MPa) *</label>
+                    <input
+                      type="number"
+                      required
+                      value={concreteStrength}
+                      onChange={(e) => setConcreteStrength(e.target.value)}
+                      placeholder="e.g. 30"
+                      className="w-full p-2.5 bg-concrete-50 border border-concrete-300 rounded text-navy-900 font-bold focus:bg-white focus:ring-1 focus:ring-steel-500"
+                    />
+                  </div>
+                </div>
+              </div>
 
+              {/* 3. Longitudinal Reinforcement Section */}
+              <div className="space-y-3 pt-4 border-t border-concrete-200">
+                <h3 className="text-sm font-heading font-bold text-navy-900 uppercase tracking-wider flex items-center gap-2 border-l-4 border-amber-500 pl-3">
+                  <span className="material-symbols-outlined text-base text-amber-600">grid_guides</span>
+                  3. Longitudinal Reinforcement Details
+                </h3>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs">
+                  <div>
+                    <label className="block text-navy-700 font-bold uppercase mb-1">Number of Tensile Bars (n) *</label>
+                    <input
+                      type="number"
+                      required
+                      value={numTensileBars}
+                      onChange={(e) => setNumTensileBars(e.target.value)}
+                      className="w-full p-2.5 bg-concrete-50 border border-concrete-300 rounded text-navy-900 font-bold focus:bg-white focus:ring-1 focus:ring-steel-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-navy-700 font-bold uppercase mb-1">Bar Diameter (db, mm) *</label>
+                    <input
+                      type="number"
+                      required
+                      value={diameterTensileBars}
+                      onChange={(e) => setDiameterTensileBars(e.target.value)}
+                      className="w-full p-2.5 bg-concrete-50 border border-concrete-300 rounded text-navy-900 font-bold focus:bg-white focus:ring-1 focus:ring-steel-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-navy-700 font-bold uppercase mb-1">Steel Yield Strength (fy, MPa) *</label>
+                    <input
+                      type="number"
+                      required
+                      value={fyLongitudinalBars}
+                      onChange={(e) => setFyLongitudinalBars(e.target.value)}
+                      className="w-full p-2.5 bg-concrete-50 border border-concrete-300 rounded text-navy-900 font-bold focus:bg-white focus:ring-1 focus:ring-steel-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. Shear Reinforcement Section */}
+              <div className="space-y-3 pt-4 border-t border-concrete-200">
+                <h3 className="text-sm font-heading font-bold text-navy-900 uppercase tracking-wider flex items-center gap-2 border-l-4 border-emerald-500 pl-3">
+                  <span className="material-symbols-outlined text-base text-emerald-600">hardware</span>
+                  4. Shear Reinforcement Details
+                </h3>
+                
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono text-xs">
+                  <div>
+                    <label className="block text-navy-700 font-bold uppercase mb-1">Stirrup Legs *</label>
+                    <input
+                      type="number"
+                      required
+                      value={numStirrupLegs}
+                      onChange={(e) => setNumStirrupLegs(e.target.value)}
+                      className="w-full p-2.5 bg-concrete-50 border border-concrete-300 rounded text-navy-900 font-bold focus:bg-white focus:ring-1 focus:ring-steel-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-navy-700 font-bold uppercase mb-1">Stirrup Diameter (mm) *</label>
+                    <input
+                      type="number"
+                      required
+                      value={stirrupDiameter}
+                      onChange={(e) => setStirrupDiameter(e.target.value)}
+                      className="w-full p-2.5 bg-concrete-50 border border-concrete-300 rounded text-navy-900 font-bold focus:bg-white focus:ring-1 focus:ring-steel-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-navy-700 font-bold uppercase mb-1">Stirrup Spacing (s, mm) *</label>
+                    <input
+                      type="number"
+                      required
+                      value={stirrupSpacing}
+                      onChange={(e) => setStirrupSpacing(e.target.value)}
+                      className="w-full p-2.5 bg-concrete-50 border border-concrete-300 rounded text-navy-900 font-bold focus:bg-white focus:ring-1 focus:ring-steel-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-navy-700 font-bold uppercase mb-1">fy Stirrup (fyv, MPa) *</label>
+                    <input
+                      type="number"
+                      required
+                      value={fyStirrupBars}
+                      onChange={(e) => setFyStirrupBars(e.target.value)}
+                      className="w-full p-2.5 bg-concrete-50 border border-concrete-300 rounded text-navy-900 font-bold focus:bg-white focus:ring-1 focus:ring-steel-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 5. Auto-Calculated Derived Metrics */}
+              <div className="p-4 bg-navy-50 rounded border border-concrete-300 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono">
+                <div>
+                  <span className="text-[10px] text-navy-500 uppercase font-bold block">Auto-Calculated Steel Area (Ast)</span>
+                  <span className="text-lg font-black text-navy-900">{ast.toFixed(1)} mm²</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-navy-500 uppercase font-bold block">Reinforcement Ratio (ρ)</span>
+                  <span className="text-lg font-black text-steel-700">{reinforcementRatio}%</span>
+                </div>
+              </div>
+
+              {/* Action Button Footer */}
+              <div className="pt-4 border-t border-concrete-200 flex items-center justify-end">
                 <Button
                   type="submit"
-                  variant="primary"
-                  size="sm"
-                  icon="save"
+                  variant="accent"
+                  size="lg"
+                  icon="play_arrow"
                   disabled={submitting}
                 >
-                  {submitting ? 'Saving...' : editingBeamId ? 'Update Beam Data' : 'Save Beam Data'}
+                  {submitting ? 'Saving & Redirecting...' : 'Save & Analyze →'}
                 </Button>
               </div>
+
             </div>
           </form>
         )}
+
       </div>
     </MainLayout>
   );

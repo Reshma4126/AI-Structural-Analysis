@@ -1,11 +1,36 @@
 const analysisService = require('../services/analysisService');
 const Project = require('../models/projectModel');
 const BeamDesign = require('../models/beamModel');
+const AnalysisRecord = require('../models/analysisModel');
 const pool = require('../config/db');
 
 const checkProjectOwnership = async (projectId, userId) => {
     const project = await Project.findByIdAndUser(projectId, userId);
     return project !== undefined;
+};
+
+/**
+ * Endpoint handler for POST /api/analysis/predict
+ * Accepts beam parameters JSON and returns engineering calculations, Python ML predictions, and SHAP features.
+ */
+const predictAnalysis = async (req, res) => {
+    try {
+        if (!req.body || Object.keys(req.body).length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid request payload. Please provide valid beam design parameters.'
+            });
+        }
+
+        const result = await analysisService.predictBeam(req.body);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error('Error in predictAnalysis controller:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'AI structural prediction failed: ' + error.message
+        });
+    }
 };
 
 const getAnalysisData = async (req, res) => {
@@ -14,7 +39,6 @@ const getAnalysisData = async (req, res) => {
         
         let beam;
         if (beamId === 'default') {
-            // Find the most recently created beam for this user
             const [rows] = await pool.execute(`
                 SELECT b.* FROM beam_designs b
                 JOIN projects p ON b.project_id = p.project_id
@@ -23,8 +47,6 @@ const getAnalysisData = async (req, res) => {
             `, [req.user.id]);
             
             if (rows.length > 0) {
-                // We need to map it properly because BeamDesign.findById returns with mapped keys?
-                // Wait, BeamDesign.findById returns the raw row from DB. Let's just use findById.
                 beam = await BeamDesign.findById(rows[0].beam_id);
             }
         } else {
@@ -43,8 +65,6 @@ const getAnalysisData = async (req, res) => {
         }
 
         const analysisData = await analysisService.getAnalysis(actualBeamId, req.user.id);
-        
-        // Always return the data (which contains beam info), let frontend handle the null analysis fields
         res.status(200).json(analysisData);
     } catch (error) {
         console.error('Error in getAnalysisData:', error);
@@ -90,8 +110,6 @@ const runAnalysis = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-const AnalysisRecord = require('../models/analysisModel');
 
 const getAnalysisHistory = async (req, res) => {
     try {
@@ -180,6 +198,7 @@ const getComparisonData = async (req, res) => {
 };
 
 module.exports = {
+    predictAnalysis,
     getAnalysisData,
     runAnalysis,
     getAnalysisHistory,

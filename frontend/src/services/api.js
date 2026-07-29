@@ -103,3 +103,18 @@ export const beamsApi = {
     }),
   getSummary: (beamId) => apiFetch(`/beams/${beamId}/summary`),
 };
+
+// Analysis & AI Prediction API
+export const analysisApi = {
+  predict: (beamParams) =>
+    apiFetch('/analysis/predict', {
+      method: 'POST',
+      body: JSON.stringify(beamParams),
+    }),
+  getAnalysis: (beamId) => apiFetch(`/analysis/${beamId}`),
+  runAnalysis: (beamId) =>
+    apiFetch(`/analysis/${beamId}/run`, {
+      method: 'POST',
+    }),
+  getComparison: (beamIds) => apiFetch(`/analysis/comparison?beamIds=${beamIds}`),
+};
