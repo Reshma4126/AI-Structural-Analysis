@@ -325,12 +325,12 @@ def main():
                     raw_shap = raw_shap[0]
                 abs_shap = np.abs(raw_shap)
             except Exception:
-                abs_shap = np.array(getattr(shap_model, "feature_importances_", np.ones(len(df.columns))))
+                raw_shap = getattr(shap_model, "feature_importances_", np.ones(len(df.columns)))
+                abs_shap = np.abs(raw_shap)
 
         total_shap = np.sum(abs_shap) if np.sum(abs_shap) > 0 else 1.0
         top_indices = np.argsort(abs_shap)[::-1][:3]
 
-        top_features = []
         name_cleaner = {
             "# Tensile Bars": "Num_Tensile_Bars",
             "Diameter Tensile Bars, db,t (mm)": "Diameter_Tensile_Bars",
@@ -342,6 +342,20 @@ def main():
             "fy,s Stirrup Bars": "fy_Stirrup_Bars"
         }
 
+        full_shap_explanations = []
+        for idx in range(len(df.columns)):
+            orig_col = df.columns[idx]
+            clean_name = name_cleaner.get(orig_col, orig_col.replace(' ', '_'))
+            s_val = float(raw_shap[idx]) if idx < len(raw_shap) else 0.0
+            abs_imp = float(abs(s_val) / total_shap)
+            full_shap_explanations.append({
+                "feature": clean_name,
+                "orig_feature": orig_col,
+                "shap_value": s_val,
+                "importance": round(abs_imp, 3)
+            })
+
+        top_features = []
         for idx in top_indices:
             orig_col = df.columns[idx]
             clean_name = name_cleaner.get(orig_col, orig_col.replace(' ', '_'))
@@ -373,7 +387,7 @@ def main():
         recommendation_payload = generate_recommendation(
             formatted_input,
             prediction_results,
-            top_features,
+            full_shap_explanations,
             health_score
         )
 
@@ -387,9 +401,12 @@ def main():
                 "ensemble_deltault_breakdown": {k: round(v, 1) for k, v in delta_individual.items()}
             },
             "beam_health_score": health_score,
+            "ai_explanation": recommendation_payload.get("ai_explanation", {}),
+            "recommendations": recommendation_payload.get("recommendations", []),
             "recommendation": recommendation_payload,
             "shap": {
-                "top_features": top_features
+                "top_features": top_features,
+                "all_features": full_shap_explanations
             }
         }
 

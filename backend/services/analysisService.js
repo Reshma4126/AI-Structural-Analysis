@@ -70,6 +70,8 @@ const predictBeam = async (beamParams) => {
         engineering,
         prediction: pythonResult.prediction,
         beam_health_score: pythonResult.beam_health_score,
+        ai_explanation: pythonResult.ai_explanation || pythonResult.recommendation?.ai_explanation,
+        recommendations: pythonResult.recommendations || pythonResult.recommendation?.recommendations,
         recommendation: pythonResult.recommendation,
         shap: pythonResult.shap
     };
