@@ -3,8 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import MainLayout from '../../components/layout/MainLayout';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
+import EngineeringMetricsGrid from '../../components/common/EngineeringMetricsGrid';
+import ShapBarChart from '../../components/common/ShapBarChart';
 import { useAuth } from '../../context/AuthContext';
 import { useAnalysis } from '../../context/AnalysisContext';
+import html2pdf from 'html2pdf.js';
 
 export default function ReportsPage() {
   const navigate = useNavigate();
@@ -12,12 +15,52 @@ export default function ReportsPage() {
   const { activeAnalysis } = useAnalysis();
   const [exporting, setExporting] = useState(false);
 
-  const handleExportPDF = () => {
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleExportPDF = async () => {
+    const reportElement = document.getElementById('engineering-report');
+    if (!reportElement) return;
+
     setExporting(true);
-    setTimeout(() => {
+
+    try {
+      const dateStr = activeAnalysis?.createdAt
+        ? new Date(activeAnalysis.createdAt).toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0];
+
+      const rawProject = activeAnalysis?.projectName || activeAnalysis?.project_name || 'BridgeProject';
+      const rawBeam = activeAnalysis?.beamName || 'BeamB101';
+
+      const cleanString = (str) => String(str).replace(/[^a-zA-Z0-9]/g, '');
+      const projClean = cleanString(rawProject) || 'BridgeProject';
+      const beamClean = cleanString(rawBeam) || 'BeamB101';
+
+      const filename = `${projClean}_${beamClean}_${dateStr}.pdf`;
+
+      const opt = {
+        margin: [10, 10, 10, 10], // 10mm margin on all sides
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          letterRendering: true,
+          windowWidth: 1024
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      };
+
+      const pdfExporter = typeof html2pdf === 'function' ? html2pdf : html2pdf.default;
+      await pdfExporter().set(opt).from(reportElement).save();
+    } catch (err) {
+      console.error('Failed to generate PDF report:', err);
+    } finally {
       setExporting(false);
-      window.print();
-    }, 600);
+    }
   };
 
   if (!activeAnalysis) {
@@ -44,15 +87,19 @@ export default function ReportsPage() {
   }
 
   const beamName = activeAnalysis.beamName || 'Beam Section';
+  const projectName = activeAnalysis.projectName || activeAnalysis.project_name || 'Bridge Project';
   const params = activeAnalysis.beamParams || {};
   const pred = activeAnalysis.prediction || {};
   const eng = activeAnalysis.engineering || {};
   const health = activeAnalysis.beam_health_score ?? 85;
+  const dateFormatted = activeAnalysis.createdAt 
+    ? new Date(activeAnalysis.createdAt).toLocaleDateString()
+    : new Date().toLocaleDateString();
 
   return (
     <MainLayout>
       <div className="space-y-6 max-w-4xl mx-auto">
-        {/* Header Bar */}
+        {/* Actions Bar (Screen view only - hidden in print) */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded border border-concrete-300 shadow-blueprint print:hidden">
           <div>
             <div className="flex items-center gap-2 text-xs font-mono text-steel-600 mb-1">
@@ -62,7 +109,7 @@ export default function ReportsPage() {
               Engineering Calculation Sheet
             </h1>
             <p className="text-xs text-navy-500 mt-1 font-mono">
-              Official structural verification report for member <strong className="text-navy-900">{beamName}</strong>.
+              Official structural verification report for member <strong className="text-navy-900">{beamName}</strong> in project <strong className="text-navy-900">{projectName}</strong>.
             </p>
           </div>
 
@@ -70,7 +117,7 @@ export default function ReportsPage() {
             <Button
               variant="secondary"
               icon="print"
-              onClick={() => window.print()}
+              onClick={handlePrint}
             >
               Print
             </Button>
@@ -85,11 +132,13 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        {/* Official Calculation Sheet Document Container */}
-        <div className="bg-white p-8 lg:p-12 rounded border border-concrete-300 shadow-blueprint space-y-8 text-navy-800 font-body print:shadow-none print:border-none print:p-0">
-          
-          {/* Document Header Logo & Meta */}
-          <div className="flex items-start justify-between border-b-2 border-navy-800 pb-6">
+        {/* Dedicated Report Container */}
+        <div
+          id="engineering-report"
+          className="bg-white p-8 lg:p-12 rounded border border-concrete-300 shadow-blueprint space-y-8 text-navy-800 font-body print:shadow-none print:border-none print:p-0"
+        >
+          {/* Document Header Logo & Metadata */}
+          <div className="flex items-start justify-between border-b-2 border-navy-800 pb-6 report-section">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded bg-steel-500 flex items-center justify-center text-white font-bold shadow-md">
                 <span className="material-symbols-outlined text-3xl">domain</span>
@@ -106,13 +155,13 @@ export default function ReportsPage() {
 
             <div className="text-right font-mono text-xs text-navy-600 space-y-1">
               <div><strong className="text-navy-900">DOC ID:</strong> CALC-#{activeAnalysis.analysisId}</div>
-              <div><strong className="text-navy-900">DATE:</strong> {new Date(activeAnalysis.createdAt || Date.now()).toLocaleDateString()}</div>
+              <div><strong className="text-navy-900">DATE:</strong> {dateFormatted}</div>
               <div><strong className="text-navy-900">ENGINEER:</strong> {user?.name || 'Engineer'}</div>
             </div>
           </div>
 
           {/* Section 1.0: Member Information */}
-          <div className="space-y-3">
+          <div className="space-y-3 report-section">
             <h3 className="font-heading font-extrabold text-base text-navy-900 border-b border-concrete-300 pb-1">
               1.0 Member Identification & Standard
             </h3>
@@ -122,6 +171,10 @@ export default function ReportsPage() {
                 <span className="font-bold text-steel-700">{beamName}</span>
               </div>
               <div>
+                <span className="text-navy-400 block text-[10px]">PROJECT</span>
+                <span className="font-bold text-navy-800">{projectName}</span>
+              </div>
+              <div>
                 <span className="text-navy-400 block text-[10px]">DESIGN CODE</span>
                 <span className="font-bold text-navy-800">AISC 360-16 / IS 456</span>
               </div>
@@ -129,15 +182,11 @@ export default function ReportsPage() {
                 <span className="text-navy-400 block text-[10px]">HEALTH SCORE</span>
                 <span className="font-bold text-emerald-700">{health}%</span>
               </div>
-              <div>
-                <span className="text-navy-400 block text-[10px]">FAILURE MODE</span>
-                <span className="font-bold text-navy-800">{pred.failure_mode || 'Flexural'}</span>
-              </div>
             </div>
           </div>
 
           {/* Section 2.0: Input Parameters & Geometry */}
-          <div className="space-y-3">
+          <div className="space-y-3 report-section">
             <h3 className="font-heading font-extrabold text-base text-navy-900 border-b border-concrete-300 pb-1">
               2.0 Input Parameters (Section Geometry & Materials)
             </h3>
@@ -160,12 +209,20 @@ export default function ReportsPage() {
             </table>
           </div>
 
-          {/* Section 3.0: Structural Capacity & AI Predictions */}
-          <div className="space-y-3">
+          {/* Section 3.0: Engineering Section Calculations */}
+          <div className="space-y-3 report-section">
             <h3 className="font-heading font-extrabold text-base text-navy-900 border-b border-concrete-300 pb-1">
-              3.0 AHEM AI Predictions & Limit States
+              3.0 Engineering Section Calculations (Deterministic Limit States)
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-emerald-50/70 rounded border border-emerald-300 text-xs font-mono">
+            <EngineeringMetricsGrid engineering={eng} />
+          </div>
+
+          {/* Section 4.0: Structural Capacity & AI Predictions */}
+          <div className="space-y-3 report-section">
+            <h3 className="font-heading font-extrabold text-base text-navy-900 border-b border-concrete-300 pb-1">
+              4.0 AHEM AI Predictions & Limit States
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-emerald-50/70 rounded border border-emerald-300 text-xs font-mono">
               <div>
                 <span className="text-emerald-800 block text-[10px] font-bold uppercase">Ultimate Load Capacity (Pmax)</span>
                 <span className="text-xl font-black text-emerald-900">{pred.pmax ?? '--'} kN</span>
@@ -174,23 +231,35 @@ export default function ReportsPage() {
                 <span className="text-emerald-800 block text-[10px] font-bold uppercase">Ultimate Deflection (Δult)</span>
                 <span className="text-xl font-black text-emerald-900">{pred.delta_ult ?? '--'} mm</span>
               </div>
+              <div>
+                <span className="text-emerald-800 block text-[10px] font-bold uppercase">Governing Failure Mode</span>
+                <span className="text-base font-extrabold text-emerald-900 truncate block">{pred.failure_mode || 'Flexural-bending (ductile)'}</span>
+              </div>
             </div>
           </div>
 
-          {/* Section 4.0: Engineering Recommendations */}
-          <div className="space-y-3">
+          {/* Section 5.0: AI Structural Optimization Advice */}
+          <div className="space-y-3 report-section">
             <h3 className="font-heading font-extrabold text-base text-navy-900 border-b border-concrete-300 pb-1">
-              4.0 AI Structural Optimization Advice
+              5.0 AI Structural Optimization Advice & Recommendations
             </h3>
             <div className="p-4 bg-cyanAccent-50/70 rounded border border-cyanAccent-300 text-xs text-navy-900 space-y-2 font-mono">
               <p className="font-body text-navy-800 leading-relaxed font-semibold">
-                {activeAnalysis.recommendation}
+                {activeAnalysis.recommendation || 'Beam section parameters are structurally sound and meet code compliance guidelines.'}
               </p>
             </div>
           </div>
 
-          {/* Signatures Footer */}
-          <div className="pt-8 border-t border-concrete-300 grid grid-cols-2 gap-8 text-xs font-mono">
+          {/* Section 6.0: SHAP Feature Importance (Explainable AI) */}
+          <div className="space-y-3 report-section">
+            <h3 className="font-heading font-extrabold text-base text-navy-900 border-b border-concrete-300 pb-1">
+              6.0 SHAP Feature Importance (Explainable AI Explanation)
+            </h3>
+            <ShapBarChart shapData={activeAnalysis.shap} />
+          </div>
+
+          {/* Document Footer & Signatures */}
+          <div className="pt-8 border-t border-concrete-300 grid grid-cols-2 gap-8 text-xs font-mono report-section">
             <div>
               <p className="text-navy-400">PREPARED BY:</p>
               <p className="font-bold text-navy-900 mt-4">{user?.name || 'Engineer'}, PE</p>
@@ -201,6 +270,11 @@ export default function ReportsPage() {
               <p className="font-bold text-cyanAccent-700 mt-4">Structura AI Verification Engine</p>
               <p className="text-navy-500">ISO 27001 Certified System</p>
             </div>
+          </div>
+
+          {/* Official Document Footer Bar */}
+          <div className="text-center pt-4 border-t border-concrete-200 text-[10px] font-mono text-navy-400">
+            Official Structural Verification Sheet • Document ID: CALC-#{activeAnalysis.analysisId} • Generated via Structura AI Engine
           </div>
 
         </div>

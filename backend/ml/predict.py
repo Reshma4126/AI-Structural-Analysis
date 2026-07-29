@@ -21,6 +21,17 @@ warnings.filterwarnings("ignore")
 
 MODEL_DIR = Path(__file__).resolve().parent / "models_trained"
 
+# Import Recommendation Engine
+try:
+    from ml.recommendation.recommendation_engine import generate_recommendation
+except ImportError:
+    try:
+        from recommendation.recommendation_engine import generate_recommendation
+    except ImportError:
+        sys.path.append(str(Path(__file__).resolve().parent))
+        from recommendation.recommendation_engine import generate_recommendation
+
+
 def normalize_input(raw_data):
     """Normalize input JSON keys (camelCase or snake_case) to exact model feature names."""
     def get_val(keys, default=0.0):
@@ -70,48 +81,138 @@ def normalize_input(raw_data):
     return formatted
 
 def compute_health_and_recommendation(pmax, delta_ult, failure_mode, width, depth, span, fc, fy, s_spacing):
-    """Calculate dynamic health score and specific actionable engineering recommendations."""
-    score = 100.0
+    """
+    Weighted Beam Health Score System (0 - 100) based on 6 engineering criteria:
+    1. Ultimate Capacity (25%)
+    2. Serviceability Deflection (30%)
+    3. Failure Mode (20%)
+    4. Material Quality (10%)
+    5. Section Geometry (10%)
+    6. Ductility Bonus (5%)
+    """
+    pmax = float(pmax)
+    delta_ult = float(delta_ult)
+    width = float(width)
+    depth = float(depth)
+    span = float(span)
+    fc = float(fc)
+    fy = float(fy)
+    s_spacing = float(s_spacing)
+
     recs = []
 
-    # Working / Serviceability deflection (IS 456 / ACI code: delta_service = delta_ult / 1.5)
+    # 1. Ultimate Capacity Score (25%)
+    # Normalized against standard baseline capacity benchmark scale (300 kN)
+    capacity_score = min(25.0, max(0.0, (pmax / 300.0) * 25.0))
+
+    # 2. Serviceability Deflection Score (30%)
+    # Service deflection = Delta_ult / 1.5
     delta_service = delta_ult / 1.5
     allowable_deflection = span / 250.0
 
-    # 1. Serviceability Deflection Check against L/250 limit
-    if delta_service > allowable_deflection:
+    if delta_service <= allowable_deflection:
+        deflection_score = 30.0
+        recs.append(f"Serviceability check passed: working deflection ({delta_service:.1f} mm) is within allowable limit L/250 ({allowable_deflection:.1f} mm).")
+    else:
         over_pct = round(((delta_service - allowable_deflection) / allowable_deflection) * 100.0, 1)
-        penalty = min(30.0, over_pct * 0.4)
-        score -= penalty
+        over_ratio = delta_service / allowable_deflection
+        deflection_score = max(0.0, 30.0 * (1.0 - 0.7 * (over_ratio - 1.0)))
         rec_d = int(round((depth * 1.15) / 25.0) * 25)
-        recs.append(f"Serviceability deflection ({delta_service:.1f} mm) exceeds span limit L/250 ({allowable_deflection:.1f} mm) by {over_pct}%. (Ultimate deflection = {delta_ult:.1f} mm). Consider increasing section depth to ~{rec_d} mm or upgrading concrete grade.")
-    else:
-        recs.append(f"Serviceability check passed: working deflection ({delta_service:.1f} mm) is within allowable limit L/250 ({allowable_deflection:.1f} mm). Ultimate deflection = {delta_ult:.1f} mm.")
+        recs.append(f"Serviceability deflection ({delta_service:.1f} mm) exceeds span limit L/250 ({allowable_deflection:.1f} mm) by {over_pct}%. Consider increasing section depth to ~{rec_d} mm.")
 
-    # 2. Failure Mode & Ductility Check
-    mode_lower = str(failure_mode).lower()
-    if "shear" in mode_lower:
-        score -= 25.0
-        rec_s = max(75, int(s_spacing * 0.75))
-        recs.append(f"Brittle shear failure mode predicted ('{failure_mode}'). Reduce stirrup spacing to s = {rec_s} mm or increase stirrup legs to ensure ductile flexural behavior.")
+    # 3. Failure Mode Score (20%)
+    mode_str = str(failure_mode).strip()
+    mode_lower = mode_str.lower()
+
+    if "ductile" in mode_lower or "flexural-bending (ductile)" in mode_lower:
+        failure_mode_score = 20.0
+    elif "flexural" in mode_lower or "flexure" in mode_lower:
+        if "shear" in mode_lower:
+            failure_mode_score = 12.0
+            rec_s = max(75, int(s_spacing * 0.8))
+            recs.append(f"Flexure-shear mode detected. Reduce stirrup spacing to s = {rec_s} mm to ensure ductile behavior.")
+        else:
+            failure_mode_score = 18.0
     elif "compression" in mode_lower or "over" in mode_lower:
-        score -= 15.0
-        recs.append("Over-reinforced section predicted. Reduce tensile steel area (Ast) to ensure ductile tension-controlled behavior.")
+        failure_mode_score = 8.0
+        recs.append("Over-reinforced section detected. Reduce tensile steel area (Ast) to ensure ductile tension-controlled behavior.")
+    elif "shear" in mode_lower:
+        failure_mode_score = 5.0
+        rec_s = max(75, int(s_spacing * 0.7))
+        recs.append(f"Brittle shear failure mode predicted ('{failure_mode}'). Reduce stirrup spacing to s = {rec_s} mm or increase stirrup legs.")
     else:
-        recs.append(f"Ductile flexural behavior verified ('{failure_mode}').")
+        failure_mode_score = 18.0
 
-    # 3. Overall Health Score
-    health_score = round(max(10.0, min(99.9, score)), 1)
+    # 4. Material Quality Score (10%)
+    fc_score = min(5.0, max(1.0, (fc / 40.0) * 5.0))
+    fy_score = min(5.0, max(1.0, (fy / 500.0) * 5.0))
+    material_score = fc_score + fy_score
 
-    if health_score >= 85:
-        summary_title = "Beam is structurally adequate with optimal strength and ductility."
-    elif health_score >= 70:
-        summary_title = "Beam design is acceptable, but minor section tuning is recommended."
+    # 5. Section Geometry Score (10%)
+    l_over_h = span / depth if depth > 0 else 12.0
+    if 10.0 <= l_over_h <= 16.0:
+        lh_score = 4.0
+    elif (8.0 <= l_over_h < 10.0) or (16.0 < l_over_h <= 20.0):
+        lh_score = 3.0
     else:
-        summary_title = "High structural risk detected; section redesign required."
+        lh_score = 1.5
 
-    full_recommendation = summary_title + " " + " ".join(recs)
+    if width >= 300.0:
+        width_score = 3.0
+    elif width >= 250.0:
+        width_score = 2.5
+    elif width >= 200.0:
+        width_score = 2.0
+    else:
+        width_score = 1.0
+
+    rho_score = 3.0  # Reinforcement ratio baseline contribution
+    geometry_score = lh_score + width_score + rho_score
+
+    # 6. Ductility Bonus (5%)
+    is_ductile = ("ductile" in mode_lower) or ("flexural-bending" in mode_lower and "shear" not in mode_lower)
+    ductility_bonus = 5.0 if is_ductile else 0.0
+
+    # Final Beam Health Score calculation
+    total_raw = (
+        capacity_score +
+        deflection_score +
+        failure_mode_score +
+        material_score +
+        geometry_score +
+        ductility_bonus
+    )
+    health_score = round(max(0.0, min(100.0, total_raw)), 1)
+
+    # Classification Tier
+    if health_score >= 95.0:
+        tier_title = "Excellent: Beam satisfies strength, serviceability, and ductility requirements."
+    elif health_score >= 85.0:
+        tier_title = "Very Good: Beam exhibits high structural capacity and serviceability with minimal optimization required."
+    elif health_score >= 70.0:
+        tier_title = "Good: Beam is structurally safe but optimization is recommended."
+    elif health_score >= 55.0:
+        tier_title = "Needs Improvement: Beam is usable but requires redesign of one or more parameters."
+    elif health_score >= 40.0:
+        tier_title = "Poor: Beam does not satisfy important structural performance requirements."
+    else:
+        tier_title = "Critical: Beam is unsafe for design and requires complete redesign."
+
+    breakdown_str = (
+        f"Capacity Score: {capacity_score:.1f}/25 | "
+        f"Deflection Score: {deflection_score:.1f}/30 | "
+        f"Failure Mode Score: {failure_mode_score:.1f}/20 | "
+        f"Material Score: {material_score:.1f}/10 | "
+        f"Geometry Score: {geometry_score:.1f}/10 | "
+        f"Ductility Bonus: {ductility_bonus:.1f}/5"
+    )
+
+    full_recommendation = f"{tier_title}\nBreakdown: {breakdown_str}"
+    if recs:
+        full_recommendation += "\nDiagnostics: " + " ".join(recs)
+
     return health_score, full_recommendation
+
 
 def load_json(filepath):
     if filepath.exists():
@@ -262,6 +363,20 @@ def main():
             formatted_input["Stirrup Spacing, s (mm)"]
         )
 
+        # 5. Generate AI-Assisted Recommendation Engine Output
+        prediction_results = {
+            "pmax": float(pmax_pred),
+            "delta_ult": float(delta_pred),
+            "failure_mode": str(failure_mode)
+        }
+
+        recommendation_payload = generate_recommendation(
+            formatted_input,
+            prediction_results,
+            top_features,
+            health_score
+        )
+
         response = {
             "success": True,
             "prediction": {
@@ -272,11 +387,12 @@ def main():
                 "ensemble_deltault_breakdown": {k: round(v, 1) for k, v in delta_individual.items()}
             },
             "beam_health_score": health_score,
-            "recommendation": rec_str,
+            "recommendation": recommendation_payload,
             "shap": {
                 "top_features": top_features
             }
         }
+
 
         print(json.dumps(response))
 

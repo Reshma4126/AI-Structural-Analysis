@@ -1,0 +1,11 @@
+{
+  "name": "ai-structural-analysis",
+  "version": "1.0.0",
+  "description": "AI-Powered Structural Decision Support Platform",
+  "scripts": {
+    "dev": "npm --prefix backend run dev",
+    "dev:all": "npm --prefix backend run dev & npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev"
+  }
+}

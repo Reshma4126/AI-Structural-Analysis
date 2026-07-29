@@ -12,7 +12,36 @@ export default function HistoryPage() {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [sortOrder, setSortOrder] = useState('latest');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [warningMsg, setWarningMsg] = useState('');
+  const itemsPerPage = 8;
+
+  const handleToggleSelect = (id) => {
+    const sId = String(id);
+    if (selectedIds.includes(sId)) {
+      setSelectedIds(selectedIds.filter(i => i !== sId));
+      setWarningMsg('');
+    } else {
+      if (selectedIds.length >= 3) {
+        setWarningMsg('A maximum of three analyses can be compared at one time.');
+        return;
+      }
+      setWarningMsg('');
+      setSelectedIds([...selectedIds, sId]);
+    }
+  };
+
+  const handleClearSelection = () => {
+    setSelectedIds([]);
+    setWarningMsg('');
+  };
+
+  const handleCompareSelected = () => {
+    if (selectedIds.length < 2 || selectedIds.length > 3) return;
+    navigate(`/comparison?ids=${selectedIds.join(',')}`, {
+      state: { selectedIds }
+    });
+  };
 
   const handleOpenRecord = (id) => {
     loadAnalysisRecord(id);
@@ -22,12 +51,14 @@ export default function HistoryPage() {
   const handleDelete = (id) => {
     if (window.confirm(`Are you sure you want to delete analysis record #${id}?`)) {
       deleteAnalysisRecord(id);
+      setSelectedIds(prev => prev.filter(i => i !== String(id)));
     }
   };
 
   const filteredList = historyList.filter(item => {
     const matchesSearch = 
-      (item.beamName || '').toLowerCase().includes(search.toLowerCase());
+      (item.beamName || '').toLowerCase().includes(search.toLowerCase()) ||
+      (item.projectName || item.project_name || '').toLowerCase().includes(search.toLowerCase());
     const matchesStatus = statusFilter === 'ALL' || (item.beam_health_score >= 85 ? 'PASS' : 'WARNING') === statusFilter;
     return matchesSearch && matchesStatus;
   }).sort((a, b) => {
@@ -40,10 +71,14 @@ export default function HistoryPage() {
   const currentItems = filteredList.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const getStatusBadge = (score) => {
-    if (score >= 85) return <Badge variant="green">PASS</Badge>;
-    if (score >= 70) return <Badge variant="cyan font-bold">WARNING</Badge>;
-    return <Badge variant="red font-bold">CRITICAL</Badge>;
+    if (score >= 95) return <Badge variant="green font-bold">EXCELLENT</Badge>;
+    if (score >= 85) return <Badge variant="green">VERY GOOD</Badge>;
+    if (score >= 70) return <Badge variant="cyan font-bold">GOOD</Badge>;
+    if (score >= 55) return <Badge variant="amber font-bold">NEEDS IMPR.</Badge>;
+    if (score >= 40) return <Badge variant="red font-bold">POOR</Badge>;
+    return <Badge variant="red font-black">CRITICAL</Badge>;
   };
+
 
   return (
     <MainLayout>
@@ -60,14 +95,72 @@ export default function HistoryPage() {
               Structural Analysis History
             </h1>
             <p className="text-xs text-navy-500 mt-0.5">
-              Review, filter, and audit past AI execution runs across structural projects.
+              Select 2 or 3 saved beam analyses to perform cross-section structural comparison.
             </p>
           </div>
 
-          <Button variant="accent" icon="play_arrow" onClick={() => navigate('/analysis')}>
-            Run New Analysis
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button variant="accent" icon="play_arrow" onClick={() => navigate('/analysis')}>
+              Run New Analysis
+            </Button>
+          </div>
         </div>
+
+        {/* Selection & Comparison Bar */}
+        <div className="bg-white p-4 rounded border border-concrete-300 shadow-blueprint flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded bg-steel-50 border border-steel-200 flex items-center justify-center text-steel-600 font-bold shrink-0">
+              <span className="material-symbols-outlined text-xl">compare_arrows</span>
+            </div>
+            <div>
+              <div className="text-xs font-heading font-bold text-navy-900 flex items-center gap-2">
+                <span>Comparison Selection</span>
+                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-steel-100 text-steel-800 font-bold border border-steel-200">
+                  {selectedIds.length} / 3 selected
+                </span>
+              </div>
+              <p className="text-xs text-navy-500 font-mono mt-0.5">
+                {selectedIds.length < 2 ? (
+                  <span className="text-amber-700 font-semibold">Select at least two analyses to compare.</span>
+                ) : (
+                  <span className="text-emerald-700 font-semibold">Ready to compare {selectedIds.length} beam analyses.</span>
+                )}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {selectedIds.length > 0 && (
+              <button
+                onClick={handleClearSelection}
+                className="text-xs font-mono text-navy-500 hover:text-navy-800 underline px-2 py-1"
+              >
+                Clear Selection
+              </button>
+            )}
+            <Button
+              variant="primary"
+              icon="compare_arrows"
+              disabled={selectedIds.length < 2 || selectedIds.length > 3}
+              onClick={handleCompareSelected}
+            >
+              Compare Selected Analyses
+            </Button>
+          </div>
+        </div>
+
+        {/* Warning Banner (Triggered if user attempts > 3 items) */}
+        {warningMsg && (
+          <div className="p-3 bg-amber-50 border border-amber-300 rounded text-amber-900 text-xs font-mono flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-amber-600 text-base">warning</span>
+              <span>{warningMsg}</span>
+            </div>
+            <button onClick={() => setWarningMsg('')} className="text-amber-700 hover:text-amber-900 font-bold text-sm">
+              &times;
+            </button>
+          </div>
+        )}
 
         {/* Filter Controls Bar */}
         <div className="bg-white p-4 rounded border border-concrete-300 shadow-blueprint flex flex-col md:flex-row items-center justify-between gap-4">
@@ -75,7 +168,7 @@ export default function HistoryPage() {
             <span className="material-symbols-outlined absolute left-3 top-2.5 text-navy-400 text-lg">search</span>
             <input
               type="text"
-              placeholder="Search by beam name..."
+              placeholder="Search by beam or project name..."
               value={search}
               onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
               className="w-full pl-9 pr-4 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-900 font-body"
@@ -131,68 +224,89 @@ export default function HistoryPage() {
               <table className="w-full text-left border-collapse">
                 <thead className="bg-navy-50 font-heading font-bold text-[11px] text-navy-700 uppercase border-b border-concrete-200">
                   <tr>
+                    <th className="p-3.5 text-center w-12">Select</th>
+                    <th className="p-3.5">Beam & Project</th>
                     <th className="p-3.5">Analysis ID / Date</th>
-                    <th className="p-3.5">Beam Designation</th>
                     <th className="p-3.5 text-center">Health Score</th>
-                    <th className="p-3.5">Status</th>
+                    <th className="p-3.5">Failure Mode</th>
                     <th className="p-3.5">Pmax (kN)</th>
                     <th className="p-3.5">Δult (mm)</th>
-                    <th className="p-3.5">Failure Mode</th>
+                    <th className="p-3.5">Status</th>
                     <th className="p-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-concrete-200 text-xs font-mono">
-                  {currentItems.map((item) => (
-                    <tr key={item.analysisId} className="hover:bg-steel-50/50 transition-colors">
-                      <td className="p-3.5 text-navy-600">
-                        <div className="font-bold text-navy-900">#{item.analysisId}</div>
-                        <div className="text-[10px] text-navy-400">
-                          {new Date(item.createdAt).toLocaleString()}
-                        </div>
-                      </td>
-                      <td className="p-3.5 font-bold text-navy-900">
-                        {item.beamName}
-                      </td>
-                      <td className="p-3.5 text-center font-extrabold text-navy-900">
-                        <span className={`inline-block px-2 py-0.5 rounded ${
-                          (item.beam_health_score ?? 85) >= 80 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                        }`}>
-                          {item.beam_health_score}%
-                        </span>
-                      </td>
-                      <td className="p-3.5">
-                        {getStatusBadge(item.beam_health_score)}
-                      </td>
-                      <td className="p-3.5 font-bold text-navy-900">
-                        {item.prediction?.pmax ?? '--'} kN
-                      </td>
-                      <td className="p-3.5 font-bold text-navy-900">
-                        {item.prediction?.delta_ult ?? '--'} mm
-                      </td>
-                      <td className="p-3.5 text-navy-700">
-                        {item.prediction?.failure_mode ?? 'Flexural'}
-                      </td>
-                      <td className="p-3.5 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            onClick={() => handleOpenRecord(item.analysisId)}
-                            className="p-1.5 text-navy-600 hover:text-steel-600 hover:bg-concrete-100 rounded transition font-bold flex items-center gap-1 text-[11px]"
-                            title="Re-Open Analysis"
-                          >
-                            <span className="material-symbols-outlined text-base">open_in_new</span>
-                            Re-Open
-                          </button>
-                          <button
-                            onClick={() => handleDelete(item.analysisId)}
-                            className="p-1.5 text-navy-400 hover:text-red-600 hover:bg-red-50 rounded transition"
-                            title="Delete Record"
-                          >
-                            <span className="material-symbols-outlined text-base">delete</span>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {currentItems.map((item) => {
+                    const isSelected = selectedIds.includes(String(item.analysisId));
+                    const projName = item.projectName || item.project_name || 'Building Project';
+                    const dateStr = item.createdAt 
+                      ? new Date(item.createdAt).toLocaleDateString()
+                      : new Date().toLocaleDateString();
+
+                    return (
+                      <tr
+                        key={item.analysisId}
+                        className={`transition-colors ${
+                          isSelected ? 'bg-steel-50/90 font-medium' : 'hover:bg-concrete-50'
+                        }`}
+                      >
+                        <td className="p-3.5 text-center">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => handleToggleSelect(item.analysisId)}
+                            className="w-4 h-4 rounded text-steel-600 focus:ring-steel-500 border-concrete-400 cursor-pointer"
+                          />
+                        </td>
+                        <td className="p-3.5">
+                          <div className="font-bold text-navy-900">{item.beamName}</div>
+                          <div className="text-[10px] text-navy-400">Project: {projName}</div>
+                        </td>
+                        <td className="p-3.5 text-navy-600">
+                          <div className="font-bold text-navy-900">#{item.analysisId}</div>
+                          <div className="text-[10px] text-navy-400">{dateStr}</div>
+                        </td>
+                        <td className="p-3.5 text-center font-extrabold text-navy-900">
+                          <span className={`inline-block px-2 py-0.5 rounded ${
+                            (item.beam_health_score ?? 85) >= 80 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                          }`}>
+                            {item.beam_health_score ?? 85}%
+                          </span>
+                        </td>
+                        <td className="p-3.5 text-navy-700">
+                          {item.prediction?.failure_mode ?? 'Flexural'}
+                        </td>
+                        <td className="p-3.5 font-bold text-navy-900">
+                          {item.prediction?.pmax ?? '--'} kN
+                        </td>
+                        <td className="p-3.5 font-bold text-navy-900">
+                          {item.prediction?.delta_ult ?? '--'} mm
+                        </td>
+                        <td className="p-3.5">
+                          {getStatusBadge(item.beam_health_score ?? 85)}
+                        </td>
+                        <td className="p-3.5 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              onClick={() => handleOpenRecord(item.analysisId)}
+                              className="p-1.5 text-navy-600 hover:text-steel-600 hover:bg-concrete-100 rounded transition font-bold flex items-center gap-1 text-[11px]"
+                              title="Re-Open Analysis"
+                            >
+                              <span className="material-symbols-outlined text-base">open_in_new</span>
+                              Re-Open
+                            </button>
+                            <button
+                              onClick={() => handleDelete(item.analysisId)}
+                              className="p-1.5 text-navy-400 hover:text-red-600 hover:bg-red-50 rounded transition"
+                              title="Delete Record"
+                            >
+                              <span className="material-symbols-outlined text-base">delete</span>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

@@ -30,22 +30,43 @@ export default function HealthGauge({
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
-  let colorClass = 'text-emerald-500';
+  let colorClass = 'text-emerald-600';
   let bgTrack = 'text-emerald-100';
   let badgeClass = 'bg-emerald-500/10 text-emerald-700 border-emerald-300';
   let assessmentText = 'Optimal Structural Integrity';
 
-  if (percentage < 70 || status === 'FAIL' || status === 'CRITICAL') {
-    colorClass = 'text-rose-500';
-    bgTrack = 'text-rose-100';
-    badgeClass = 'bg-rose-500/10 text-rose-700 border-rose-300';
-    assessmentText = 'Section Redesign Required';
-  } else if (percentage < 85 || status === 'WARNING') {
-    colorClass = 'text-amber-500';
+  if (numericScore >= 95) {
+    colorClass = 'text-emerald-800';
+    bgTrack = 'text-emerald-100';
+    badgeClass = 'bg-emerald-800/10 text-emerald-900 border-emerald-400 font-bold';
+    assessmentText = 'Excellent (Satisfies All Requirements)';
+  } else if (numericScore >= 85) {
+    colorClass = 'text-emerald-600';
+    bgTrack = 'text-emerald-100';
+    badgeClass = 'bg-emerald-600/10 text-emerald-700 border-emerald-300 font-bold';
+    assessmentText = 'Very Good (High Capacity & Serviceability)';
+  } else if (numericScore >= 70) {
+    colorClass = 'text-blue-600';
+    bgTrack = 'text-blue-100';
+    badgeClass = 'bg-blue-600/10 text-blue-700 border-blue-300 font-bold';
+    assessmentText = 'Good (Structurally Safe - Optimization Advised)';
+  } else if (numericScore >= 55) {
+    colorClass = 'text-amber-600';
     bgTrack = 'text-amber-100';
-    badgeClass = 'bg-amber-500/10 text-amber-700 border-amber-300';
-    assessmentText = 'Acceptable (Section Tuning Recommended)';
+    badgeClass = 'bg-amber-600/10 text-amber-700 border-amber-300 font-bold';
+    assessmentText = 'Needs Improvement (Redesign Recommended)';
+  } else if (numericScore >= 40) {
+    colorClass = 'text-rose-600';
+    bgTrack = 'text-rose-100';
+    badgeClass = 'bg-rose-600/10 text-rose-700 border-rose-300 font-bold';
+    assessmentText = 'Poor (Performance Checks Unfulfilled)';
+  } else {
+    colorClass = 'text-red-900';
+    bgTrack = 'text-red-200';
+    badgeClass = 'bg-red-900/10 text-red-900 border-red-500 font-extrabold';
+    assessmentText = 'Critical (Unsafe - Complete Redesign Required)';
   }
+
 
   const ultDisplay = ult != null ? `${parseFloat(ult).toFixed(1)} mm` : null;
   const pmaxDisplay = pmax != null ? `${parseFloat(pmax).toFixed(1)} kN` : null;
