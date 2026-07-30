@@ -60,8 +60,8 @@ export default function EvaluationPage() {
         {/* Header Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded border border-concrete-300 shadow-blueprint">
           <div>
-            <div className="flex items-center gap-2 text-xs font-mono text-steel-600 mb-1">
-              COMPLIANCE EVALUATOR • MULTI-STANDARD
+            <div className="flex items-center gap-2 text-xs font-mono text-orange-600 font-bold uppercase mb-1">
+              BEAMWISE AI EVALUATOR • MULTI-STANDARD CODE CHECK
             </div>
             <h1 className="text-2xl font-heading font-extrabold text-navy-800 tracking-tight">
               Structural Safety & Code Evaluation

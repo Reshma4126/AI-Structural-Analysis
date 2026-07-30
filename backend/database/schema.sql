@@ -1,6 +1,7 @@
 -- Create database if it doesn't exist
-CREATE DATABASE IF NOT EXISTS structural_ai_db;
-USE structural_ai_db;
+CREATE DATABASE IF NOT EXISTS mini_proj;
+USE mini_proj;
+
 
 -- Users Table
 CREATE TABLE IF NOT EXISTS users (

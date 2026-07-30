@@ -98,8 +98,8 @@ export default function ProjectsPage() {
       {/* Header Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded border border-concrete-300 shadow-blueprint">
         <div>
-          <div className="flex items-center gap-2 text-xs font-mono text-steel-600 mb-1">
-            PORTFOLIO MANAGER • {projects.length} ACTIVE PROJECTS
+          <div className="flex items-center gap-2 text-xs font-mono text-orange-600 font-bold uppercase mb-1">
+            BEAMWISE AI PORTFOLIO MANAGER • {projects.length} ACTIVE PROJECTS
           </div>
           <h1 className="text-2xl font-heading font-extrabold text-navy-800 tracking-tight">
             Structural Engineering Workspaces

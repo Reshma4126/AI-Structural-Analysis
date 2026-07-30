@@ -115,6 +115,19 @@ RECOMMENDATION_ITEM_TEMPLATES = {
 
 # SHAP Justification Templates
 SHAP_JUSTIFICATION_TEMPLATES = {
+    "DEPTH_DOMINANT": (
+        "SHAP feature importance analysis identifies Depth as the primary governing factor (importance: {importance_pct:.1f}%), "
+        "confirming that targeting section depth yields the highest impact because flexural stiffness (I_x = b*h^3/12) "
+        "and moment capacity scale exponentially with depth."
+    ),
+    "SPAN_DOMINANT": (
+        "SHAP feature importance analysis identifies Clear Span as the dominant contributor (importance: {importance_pct:.1f}%), "
+        "explaining why deflection control requires section depth adjustment as bending moment and deflection scale with span (L^2 and L^4)."
+    ),
+    "CONCRETE_DOMINANT": (
+        "SHAP feature importance analysis identifies Concrete Strength as a top contributor (importance: {importance_pct:.1f}%), "
+        "confirming that upgrading concrete grade directly improves diagonal compression shear resistance and crush capacity."
+    ),
     "DOMINANT_FEATURE": (
         "SHAP feature importance analysis indicates that '{feature_name}' is the top controlling parameter "
         "(importance: {importance_pct:.1f}%), confirming that targeting {feature_alias} yields the highest impact."

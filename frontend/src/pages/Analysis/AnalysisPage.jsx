@@ -79,13 +79,6 @@ function AnalysisPageContent() {
     }
   };
 
-  const handleInputChange = (field, value) => {
-    setParams(prev => ({
-      ...prev,
-      [field]: parseFloat(value) || 0
-    }));
-  };
-
   const runPrediction = async () => {
     setLoading(true);
     setError(null);
@@ -101,9 +94,8 @@ function AnalysisPageContent() {
     }
   };
 
-  useEffect(() => {
-    runPrediction();
-  }, [params.width, params.depth, params.span]);
+  // Only run prediction when user explicitly clicks "Run AI Analysis"
+  // (Do NOT auto-trigger on mount — this keeps health score consistent with Dashboard)
 
   const getFailureBadgeVariant = (mode) => {
     if (!mode) return 'steel';
@@ -122,19 +114,19 @@ function AnalysisPageContent() {
 
   return (
     <MainLayout>
-      <div className="space-y-8 max-w-7xl mx-auto">
+      <div className="space-y-8 max-w-7xl mx-auto font-body">
         
         {/* Header Bar */}
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-concrete-300 pb-6">
           <div>
-            <div className="flex items-center gap-2 text-xs font-mono text-cyanAccent-600 font-bold uppercase mb-1">
+            <div className="flex items-center gap-2 text-xs font-mono text-brandOrange font-bold uppercase mb-1">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              STEP 4 • AI ANALYSIS & PREDICTION
+              STRUCTWISE AI ENGINE • AI ANALYSIS & DIAGNOSTICS DASHBOARD
             </div>
-            <h1 className="text-3xl font-heading font-extrabold text-navy-900 tracking-tight">
-              Analysis - {passedBeamName}
+            <h1 className="text-3xl font-heading font-extrabold text-brandNavy tracking-tight">
+              AI Analysis — {passedBeamName}
             </h1>
-            <p className="text-xs text-navy-500 mt-1 font-mono">
+            <p className="text-xs text-brandSteel mt-1 font-mono">
               AISC 360-16 / IS 456 Limit State Checks • SHAP Explainability Engine
             </p>
           </div>
@@ -161,42 +153,42 @@ function AnalysisPageContent() {
         {/* Saved Beam Summary Card */}
         <div className="bg-white p-6 rounded border border-concrete-300 shadow-blueprint space-y-4">
           <div className="flex items-center justify-between border-b border-concrete-200 pb-3">
-            <div className="flex items-center gap-2 font-heading font-bold text-navy-900 text-sm">
-              <span className="material-symbols-outlined text-steel-600">architecture</span>
+            <div className="flex items-center gap-2 font-heading font-bold text-brandNavy text-sm">
+              <span className="material-symbols-outlined text-brandSteel">architecture</span>
               Loaded Beam Specifications ({passedBeamName})
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono text-navy-500">Presets:</span>
-              <button onClick={() => applyPreset('small')} className="px-2 py-0.5 text-xs font-mono bg-concrete-100 rounded">Small</button>
-              <button onClick={() => applyPreset('medium')} className="px-2 py-0.5 text-xs font-mono bg-concrete-100 rounded">Medium</button>
-              <button onClick={() => applyPreset('large')} className="px-2 py-0.5 text-xs font-mono bg-concrete-100 rounded">Large</button>
+              <span className="text-xs font-mono text-brandSteel">Presets:</span>
+              <button onClick={() => applyPreset('small')} className="px-2.5 py-1 text-xs font-mono bg-brandBg border border-concrete-300 rounded font-bold hover:bg-concrete-200">Small</button>
+              <button onClick={() => applyPreset('medium')} className="px-2.5 py-1 text-xs font-mono bg-brandBg border border-concrete-300 rounded font-bold hover:bg-concrete-200">Medium</button>
+              <button onClick={() => applyPreset('large')} className="px-2.5 py-1 text-xs font-mono bg-brandBg border border-concrete-300 rounded font-bold hover:bg-concrete-200">Large</button>
             </div>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 font-mono text-xs">
-            <div className="bg-concrete-50 p-2.5 rounded border border-concrete-200">
-              <span className="text-[10px] text-navy-400 block uppercase">Width (b)</span>
-              <span className="font-bold text-navy-900">{params.width} mm</span>
+            <div className="bg-brandBg p-2.5 rounded border border-concrete-300">
+              <span className="text-[10px] text-brandSteel block uppercase">Width (b)</span>
+              <span className="font-bold text-brandNavy">{params.width} mm</span>
             </div>
-            <div className="bg-concrete-50 p-2.5 rounded border border-concrete-200">
-              <span className="text-[10px] text-navy-400 block uppercase">Overall Depth (h)</span>
-              <span className="font-bold text-navy-900">{params.depth} mm</span>
+            <div className="bg-brandBg p-2.5 rounded border border-concrete-300">
+              <span className="text-[10px] text-brandSteel block uppercase">Overall Depth (h)</span>
+              <span className="font-bold text-brandNavy">{params.depth} mm</span>
             </div>
-            <div className="bg-concrete-50 p-2.5 rounded border border-concrete-200">
-              <span className="text-[10px] text-navy-400 block uppercase">Span Length (L)</span>
-              <span className="font-bold text-navy-900">{params.span} mm</span>
+            <div className="bg-brandBg p-2.5 rounded border border-concrete-300">
+              <span className="text-[10px] text-brandSteel block uppercase">Span Length (L)</span>
+              <span className="font-bold text-brandNavy">{params.span} mm</span>
             </div>
-            <div className="bg-concrete-50 p-2.5 rounded border border-concrete-200">
-              <span className="text-[10px] text-navy-400 block uppercase">Concrete (fck)</span>
-              <span className="font-bold text-steel-700">{params.concrete_strength} MPa</span>
+            <div className="bg-brandBg p-2.5 rounded border border-concrete-300">
+              <span className="text-[10px] text-brandSteel block uppercase">Concrete (fck)</span>
+              <span className="font-bold text-brandNavy">M{params.concrete_strength} ({params.concrete_strength} MPa)</span>
             </div>
-            <div className="bg-concrete-50 p-2.5 rounded border border-concrete-200">
-              <span className="text-[10px] text-navy-400 block uppercase">Tensile Steel</span>
-              <span className="font-bold text-steel-700">{params.num_tensile_bars}T{params.diameter_tensile_bars} (fy {params.fy_longitudinal_bars})</span>
+            <div className="bg-brandBg p-2.5 rounded border border-concrete-300">
+              <span className="text-[10px] text-brandSteel block uppercase">Tensile Steel</span>
+              <span className="font-bold text-brandNavy">{params.num_tensile_bars}T{params.diameter_tensile_bars} (Fe{params.fy_longitudinal_bars})</span>
             </div>
-            <div className="bg-concrete-50 p-2.5 rounded border border-concrete-200">
-              <span className="text-[10px] text-navy-400 block uppercase">Stirrups</span>
-              <span className="font-bold text-steel-700">{params.num_stirrup_legs}L-T{params.stirrup_diameter} @ {params.stirrup_spacing}mm</span>
+            <div className="bg-brandBg p-2.5 rounded border border-concrete-300">
+              <span className="text-[10px] text-brandSteel block uppercase">Stirrups</span>
+              <span className="font-bold text-brandNavy">{params.num_stirrup_legs}L-T{params.stirrup_diameter} @ {params.stirrup_spacing}mm</span>
             </div>
           </div>
         </div>
@@ -204,9 +196,9 @@ function AnalysisPageContent() {
         {/* Loading Skeleton */}
         {loading && (
           <div className="bg-white p-12 rounded border border-concrete-300 text-center space-y-4 shadow-blueprint">
-            <div className="w-12 h-12 border-4 border-steel-200 border-t-steel-600 rounded-full animate-spin mx-auto"></div>
-            <p className="font-heading font-bold text-base text-navy-900">Executing Adaptive Hybrid Ensemble & SHAP Engine...</p>
-            <p className="text-xs text-navy-500 font-mono">Running Random Forest, Extra Trees, LightGBM & CatBoost Inference</p>
+            <div className="w-12 h-12 border-4 border-brandSteel-200 border-t-brandNavy rounded-full animate-spin mx-auto"></div>
+            <p className="font-heading font-bold text-base text-brandNavy">Executing Adaptive Hybrid Ensemble & SHAP Engine...</p>
+            <p className="text-xs text-brandSteel font-mono">Running Random Forest, Extra Trees, LightGBM & CatBoost Inference</p>
           </div>
         )}
 
@@ -220,75 +212,89 @@ function AnalysisPageContent() {
           </div>
         )}
 
-        {/* Results Dashboard */}
+        {/* AI Dashboard Results Layout */}
         {result && !loading && (
-          <div className="space-y-8">
+          <div className="space-y-8 animate-fade-in">
             
-            {/* Top Health Gauge */}
-            <HealthGauge
-              score={healthScore}
-              status={healthScore >= 85 ? 'PASS' : healthScore >= 70 ? 'WARNING' : 'CRITICAL'}
-            />
-
-            {/* AI Prediction Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {/* Top 4 Primary KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 font-mono">
               
-              {/* Pmax */}
+              {/* 1. Ultimate Load Pmax */}
               <div className="bg-white p-5 rounded border border-concrete-300 shadow-blueprint space-y-2">
-                <div className="flex justify-between items-center text-xs font-mono text-navy-500 font-bold uppercase">
-                  <span>Ultimate Capacity (Pmax)</span>
-                  <span className="material-symbols-outlined text-steel-500 text-base">fitness_center</span>
+                <div className="flex justify-between items-center text-xs text-brandSteel font-bold uppercase">
+                  <span>Ultimate Load (Pmax)</span>
+                  <span className="material-symbols-outlined text-brandNavy text-xl">fitness_center</span>
                 </div>
-                <div className="text-4xl font-heading font-black text-navy-900 tracking-tight">
-                  {pmaxVal} <span className="text-lg font-normal text-navy-500">kN</span>
+                <div className="text-3xl font-heading font-black text-brandNavy tracking-tight">
+                  {pmaxVal} <span className="text-sm font-normal text-brandSteel">kN</span>
                 </div>
-                <div className="text-[11px] text-navy-500 font-mono">
-                  AHEM Weighted Prediction
+                <div className="text-[11px] text-brandSteel">
+                  AHEM Ensemble Prediction
                 </div>
               </div>
 
-              {/* Deflection */}
+              {/* 2. Ultimate Deflection */}
               <div className="bg-white p-5 rounded border border-concrete-300 shadow-blueprint space-y-2">
-                <div className="flex justify-between items-center text-xs font-mono text-navy-500 font-bold uppercase">
+                <div className="flex justify-between items-center text-xs text-brandSteel font-bold uppercase">
                   <span>Ultimate Deflection (Δult)</span>
-                  <span className="material-symbols-outlined text-steel-500 text-base">square_foot</span>
+                  <span className="material-symbols-outlined text-brandNavy text-xl">square_foot</span>
                 </div>
-                <div className="text-4xl font-heading font-black text-navy-900 tracking-tight">
-                  {deltaVal} <span className="text-lg font-normal text-navy-500">mm</span>
+                <div className="text-3xl font-heading font-black text-brandNavy tracking-tight">
+                  {deltaVal} <span className="text-sm font-normal text-brandSteel">mm</span>
                 </div>
-                <div className="text-[11px] text-navy-500 font-mono">
-                  Code Limit: L/250 ({allowableDeflection} mm)
+                <div className="text-[11px] text-brandSteel">
+                  Allowable L/250: {allowableDeflection} mm
                 </div>
               </div>
 
-              {/* Failure Mode */}
+              {/* 3. Failure Mode */}
               <div className="bg-white p-5 rounded border border-concrete-300 shadow-blueprint space-y-2">
-                <div className="flex justify-between items-center text-xs font-mono text-navy-500 font-bold uppercase">
-                  <span>Failure Mode Classification</span>
-                  <span className="material-symbols-outlined text-steel-500 text-base">psychology</span>
+                <div className="flex justify-between items-center text-xs text-brandSteel font-bold uppercase">
+                  <span>Governing Failure Mode</span>
+                  <span className="material-symbols-outlined text-brandNavy text-xl">psychology</span>
                 </div>
                 <div className="pt-1">
                   <Badge variant={getFailureBadgeVariant(failureModeStr)} size="lg">
                     {failureModeStr}
                   </Badge>
                 </div>
-                <div className="text-[11px] text-navy-500 font-mono">
-                  CatBoost Multi-Class Model
+                <div className="text-[11px] text-brandSteel">
+                  CatBoost Failure Classifier
+                </div>
+              </div>
+
+              {/* 4. Beam Health Score */}
+              <div className="bg-white p-5 rounded border border-concrete-300 shadow-blueprint space-y-2">
+                <div className="flex justify-between items-center text-xs text-brandSteel font-bold uppercase">
+                  <span>Beam Health Score</span>
+                  <span className="material-symbols-outlined text-brandNavy text-xl">health_and_safety</span>
+                </div>
+                <div className="text-3xl font-heading font-black text-emerald-800 tracking-tight">
+                  {healthScore}%
+                </div>
+                <div className="text-[11px] text-brandSteel">
+                  {healthScore >= 80 ? 'PASS (Satisfies All Limits)' : 'WARNING (Penalty Applied)'}
                 </div>
               </div>
 
             </div>
 
-            {/* Analytical Engineering Calculations Grid */}
-            <EngineeringMetricsGrid engineering={result?.engineering} />
+            {/* Overall Health Gauge Display */}
+            <HealthGauge
+              score={healthScore}
+              status={healthScore >= 85 ? 'PASS' : healthScore >= 70 ? 'WARNING' : 'CRITICAL'}
+            />
 
-            {/* Recommendation Panel */}
-            <RecommendationCard recommendation={result?.recommendation} />
+            {/* AI-Assisted Recommendation Engine Panel */}
+            <RecommendationCard recommendation={result?.recommendation} beamData={{ beamParams: params, prediction: result?.prediction }} />
 
-            {/* SHAP Feature Importance */}
+            {/* SHAP Explanation & Top Features Chart */}
             <ShapBarChart shapData={result?.shap} />
 
-            {/* Expandable Ensemble Model Breakdown Table */}
+            {/* Analytical Engineering Mechanics Checks Grid */}
+            <EngineeringMetricsGrid engineering={result?.engineering} />
+
+            {/* Ensemble Model Breakdown Charts & Tables */}
             <EnsembleBreakdownTable
               pmaxBreakdown={result?.prediction?.ensemble_pmax_breakdown}
               deltaBreakdown={result?.prediction?.ensemble_deltault_breakdown}

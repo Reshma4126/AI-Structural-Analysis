@@ -1,8 +1,8 @@
 export const currentUser = {
   name: 'Structural Lead',
   role: 'Principal Structural Engineer',
-  email: 'engineer@structura.ai',
-  company: 'Structural Decision Support Platform',
+  email: 'engineer@beamwise.ai',
+  company: 'BeamWise AI Platform',
   license: 'PE #884920',
 };
 

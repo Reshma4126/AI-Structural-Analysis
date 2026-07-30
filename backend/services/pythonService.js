@@ -80,11 +80,12 @@ const predict = (beamParams) => {
             reject(new Error(`Failed to start Python executable (${pythonExec}): ${err.message}`));
         });
 
-        // Set 15-second execution timeout
+        // Set 45-second execution timeout to allow heavy ML ensemble loading
         const timeout = setTimeout(() => {
             pythonProcess.kill();
-            reject(new Error('Python ML inference timed out (15 seconds).'));
-        }, 15000);
+            reject(new Error('Python ML inference timed out (45 seconds).'));
+        }, 45000);
+
 
         pythonProcess.on('exit', () => clearTimeout(timeout));
 

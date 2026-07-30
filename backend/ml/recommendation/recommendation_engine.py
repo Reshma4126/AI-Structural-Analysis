@@ -93,12 +93,23 @@ class RecommendationEngine:
                 top_feature_name = str(first_sf.get("feature", "Depth"))
                 top_feature_imp = float(first_sf.get("importance", 0.35))
 
-        feature_alias = top_feature_name.replace("_", " ").replace("Tension Reinforcement Ratio, pten (%)", "Reinforcement Ratio")
-        shap_justification = SHAP_JUSTIFICATION_TEMPLATES["DOMINANT_FEATURE"].format(
-            feature_name=top_feature_name,
-            importance_pct=top_feature_imp * 100.0 if top_feature_imp <= 1.0 else top_feature_imp,
-            feature_alias=feature_alias
-        )
+        imp_pct = top_feature_imp * 100.0 if top_feature_imp <= 1.0 else top_feature_imp
+        feat_lower = top_feature_name.lower()
+
+        if "depth" in feat_lower:
+            shap_justification = SHAP_JUSTIFICATION_TEMPLATES["DEPTH_DOMINANT"].format(importance_pct=imp_pct)
+        elif "span" in feat_lower or "length" in feat_lower:
+            shap_justification = SHAP_JUSTIFICATION_TEMPLATES["SPAN_DOMINANT"].format(importance_pct=imp_pct)
+        elif "concrete" in feat_lower or "fc" in feat_lower:
+            shap_justification = SHAP_JUSTIFICATION_TEMPLATES["CONCRETE_DOMINANT"].format(importance_pct=imp_pct)
+        else:
+            feature_alias = top_feature_name.replace("_", " ").replace("Tension Reinforcement Ratio, pten (%)", "Reinforcement Ratio")
+            shap_justification = SHAP_JUSTIFICATION_TEMPLATES["DOMINANT_FEATURE"].format(
+                feature_name=top_feature_name,
+                importance_pct=imp_pct,
+                feature_alias=feature_alias
+            )
+
 
         # Construct recommendation items list
         recommendations_list = []

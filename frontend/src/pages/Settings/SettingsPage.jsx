@@ -167,8 +167,8 @@ export default function SettingsPage() {
             </div>
 
             <div className="pt-3 border-t border-concrete-200 text-xs font-mono space-y-1 text-navy-600">
-              <div>Organization: <strong className="text-navy-800">{user?.company || 'Structura AI'}</strong></div>
-              <div>License Type: <strong className="text-cyanAccent-700">Enterprise AI License</strong></div>
+              <div>Organization: <strong className="text-navy-800">{user?.company || 'BeamWise AI'}</strong></div>
+              <div>License Type: <strong className="text-orange-600">Enterprise AI License</strong></div>
               <div>Expiration: <strong className="text-navy-800">December 2027</strong></div>
             </div>
           </div>

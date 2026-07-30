@@ -1,6 +1,7 @@
-# Structural AI Decision Support - Backend
+# BeamWise AI — Backend Service
 
-This is the Node.js backend for the AI-Powered Structural Decision Support Platform for Reinforced Concrete Beams.
+This is the Node.js backend for the BeamWise AI Decision Support Platform for Reinforced Concrete Beams.
+
 
 ## Tech Stack
 - Node.js

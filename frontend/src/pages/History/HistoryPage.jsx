@@ -7,27 +7,31 @@ import { useAnalysis } from '../../context/AnalysisContext';
 
 export default function HistoryPage() {
   const navigate = useNavigate();
-  const { historyList, loadAnalysisRecord, deleteAnalysisRecord } = useAnalysis();
+  const { historyList, loadAnalysis, deleteAnalysis } = useAnalysis();
+
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [sortOrder, setSortOrder] = useState('latest');
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState([]);
   const [warningMsg, setWarningMsg] = useState('');
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
-  const handleToggleSelect = (id) => {
-    const sId = String(id);
+  // Toggle selection for comparison
+  const handleToggleSelect = (analysisId) => {
+    const sId = String(analysisId);
     if (selectedIds.includes(sId)) {
-      setSelectedIds(selectedIds.filter(i => i !== sId));
+      setSelectedIds(selectedIds.filter((id) => id !== sId));
       setWarningMsg('');
     } else {
       if (selectedIds.length >= 3) {
-        setWarningMsg('A maximum of three analyses can be compared at one time.');
+        setWarningMsg('You can select a maximum of 3 beam analyses for comparison.');
         return;
       }
-      setWarningMsg('');
       setSelectedIds([...selectedIds, sId]);
+      setWarningMsg('');
     }
   };
 
@@ -37,93 +41,115 @@ export default function HistoryPage() {
   };
 
   const handleCompareSelected = () => {
-    if (selectedIds.length < 2 || selectedIds.length > 3) return;
-    navigate(`/comparison?ids=${selectedIds.join(',')}`, {
-      state: { selectedIds }
-    });
+    if (selectedIds.length < 2) return;
+    navigate('/comparison', { state: { selectedIds } });
   };
 
-  const handleOpenRecord = (id) => {
-    loadAnalysisRecord(id);
+  const handleOpenRecord = (analysisId) => {
+    loadAnalysis(analysisId);
     navigate('/analysis');
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm(`Are you sure you want to delete analysis record #${id}?`)) {
-      deleteAnalysisRecord(id);
-      setSelectedIds(prev => prev.filter(i => i !== String(id)));
+  const handleCompareSingle = (analysisId) => {
+    const sId = String(analysisId);
+    const candidateB = historyList.find(h => String(h.analysisId) !== sId);
+    const candidateBId = candidateB ? String(candidateB.analysisId) : sId;
+    navigate('/comparison', { state: { selectedIds: [sId, candidateBId] } });
+  };
+
+  const handleOpenReport = (analysisId) => {
+    loadAnalysis(analysisId);
+    navigate('/reports');
+  };
+
+  const handleDelete = (analysisId) => {
+    if (window.confirm(`Are you sure you want to delete analysis run #${analysisId}?`)) {
+      deleteAnalysis(analysisId);
+      setSelectedIds(selectedIds.filter(id => id !== String(analysisId)));
     }
   };
 
-  const filteredList = historyList.filter(item => {
-    const matchesSearch = 
-      (item.beamName || '').toLowerCase().includes(search.toLowerCase()) ||
-      (item.projectName || item.project_name || '').toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = statusFilter === 'ALL' || (item.beam_health_score >= 85 ? 'PASS' : 'WARNING') === statusFilter;
+  // Filter & Search Logic
+  let filteredList = historyList.filter((item) => {
+    const beamName = item.beamName || '';
+    const projName = item.projectName || item.project_name || '';
+    const query = search.toLowerCase();
+
+    const matchesSearch =
+      beamName.toLowerCase().includes(query) ||
+      projName.toLowerCase().includes(query) ||
+      String(item.analysisId).includes(query);
+
+    const score = item.beam_health_score ?? 85;
+    let matchesStatus = true;
+    if (statusFilter === 'PASS') matchesStatus = score >= 80;
+    if (statusFilter === 'WARNING') matchesStatus = score < 80;
+
     return matchesSearch && matchesStatus;
-  }).sort((a, b) => {
-    const timeA = new Date(a.createdAt || Date.now()).getTime();
-    const timeB = new Date(b.createdAt || Date.now()).getTime();
-    return sortOrder === 'oldest' ? timeA - timeB : timeB - timeA;
   });
 
+  // Sort Order
+  filteredList.sort((a, b) => {
+    const dateA = new Date(a.createdAt || Date.now());
+    const dateB = new Date(b.createdAt || Date.now());
+    return sortOrder === 'latest' ? dateB - dateA : dateA - dateB;
+  });
+
+  // Pagination slicing
   const totalPages = Math.ceil(filteredList.length / itemsPerPage) || 1;
-  const currentItems = filteredList.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentItems = filteredList.slice(startIndex, startIndex + itemsPerPage);
 
   const getStatusBadge = (score) => {
-    if (score >= 95) return <Badge variant="green font-bold">EXCELLENT</Badge>;
-    if (score >= 85) return <Badge variant="green">VERY GOOD</Badge>;
-    if (score >= 70) return <Badge variant="cyan font-bold">GOOD</Badge>;
-    if (score >= 55) return <Badge variant="amber font-bold">NEEDS IMPR.</Badge>;
-    if (score >= 40) return <Badge variant="red font-bold">POOR</Badge>;
-    return <Badge variant="red font-black">CRITICAL</Badge>;
+    if (score >= 85) return <Badge variant="green font-bold">OPTIMAL ({score}%)</Badge>;
+    if (score >= 70) return <Badge variant="amber font-bold">ACCEPTABLE ({score}%)</Badge>;
+    return <Badge variant="red font-bold">DEFICIENT ({score}%)</Badge>;
   };
-
 
   return (
     <MainLayout>
-      <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="space-y-6 max-w-7xl mx-auto font-body">
         
         {/* Header Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-concrete-300 pb-5">
           <div>
-            <div className="flex items-center gap-2 text-xs font-mono text-cyanAccent-600 font-bold uppercase mb-1">
-              <span className="w-2 h-2 rounded-full bg-cyanAccent-500"></span>
-              PROJECT AUDIT TRAIL • PERMANENT EXECUTION ARCHIVE
+            <div className="flex items-center gap-2 text-xs font-mono text-brandOrange font-bold uppercase mb-1">
+              <span className="w-2 h-2 rounded-full bg-brandOrange"></span>
+              STRUCTWISE AI AUDIT TRAIL • PERMANENT EXECUTION ARCHIVE
             </div>
-            <h1 className="text-2xl font-heading font-extrabold text-navy-900 tracking-tight">
+            <h1 className="text-2xl font-heading font-extrabold text-brandNavy tracking-tight">
               Structural Analysis History
             </h1>
-            <p className="text-xs text-navy-500 mt-0.5">
-              Select 2 or 3 saved beam analyses to perform cross-section structural comparison.
+            <p className="text-xs text-brandSteel mt-0.5">
+              Review saved beam calculation runs, compare side-by-side, or download official report sheets.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <Button variant="accent" icon="play_arrow" onClick={() => navigate('/analysis')}>
-              Run New Analysis
+            <Button variant="accent" icon="play_arrow" onClick={() => navigate('/beam-design')}>
+              Create New Beam
             </Button>
           </div>
         </div>
 
-        {/* Selection & Comparison Bar */}
+        {/* Selection & Comparison Control Bar */}
         <div className="bg-white p-4 rounded border border-concrete-300 shadow-blueprint flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded bg-steel-50 border border-steel-200 flex items-center justify-center text-steel-600 font-bold shrink-0">
+            <div className="w-9 h-9 rounded bg-brandBg border border-concrete-300 flex items-center justify-center text-brandNavy font-bold shrink-0">
               <span className="material-symbols-outlined text-xl">compare_arrows</span>
             </div>
             <div>
-              <div className="text-xs font-heading font-bold text-navy-900 flex items-center gap-2">
-                <span>Comparison Selection</span>
-                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-steel-100 text-steel-800 font-bold border border-steel-200">
+              <div className="text-xs font-heading font-bold text-brandNavy flex items-center gap-2">
+                <span>Side-by-Side Comparison Selector</span>
+                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-brandBg text-brandNavy font-bold border border-concrete-300">
                   {selectedIds.length} / 3 selected
                 </span>
               </div>
-              <p className="text-xs text-navy-500 font-mono mt-0.5">
+              <p className="text-xs text-brandSteel font-mono mt-0.5">
                 {selectedIds.length < 2 ? (
-                  <span className="text-amber-700 font-semibold">Select at least two analyses to compare.</span>
+                  <span className="text-amber-700 font-semibold">Check at least two analyses to compare.</span>
                 ) : (
-                  <span className="text-emerald-700 font-semibold">Ready to compare {selectedIds.length} beam analyses.</span>
+                  <span className="text-emerald-700 font-semibold">Ready to compare {selectedIds.length} beam designs.</span>
                 )}
               </p>
             </div>
@@ -133,7 +159,7 @@ export default function HistoryPage() {
             {selectedIds.length > 0 && (
               <button
                 onClick={handleClearSelection}
-                className="text-xs font-mono text-navy-500 hover:text-navy-800 underline px-2 py-1"
+                className="text-xs font-mono text-brandSteel hover:text-brandNavy underline px-2 py-1"
               >
                 Clear Selection
               </button>
@@ -141,60 +167,47 @@ export default function HistoryPage() {
             <Button
               variant="primary"
               icon="compare_arrows"
-              disabled={selectedIds.length < 2 || selectedIds.length > 3}
+              disabled={selectedIds.length < 2}
               onClick={handleCompareSelected}
             >
-              Compare Selected Analyses
+              Compare Selected Beams
             </Button>
           </div>
         </div>
 
-        {/* Warning Banner (Triggered if user attempts > 3 items) */}
-        {warningMsg && (
-          <div className="p-3 bg-amber-50 border border-amber-300 rounded text-amber-900 text-xs font-mono flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-amber-600 text-base">warning</span>
-              <span>{warningMsg}</span>
-            </div>
-            <button onClick={() => setWarningMsg('')} className="text-amber-700 hover:text-amber-900 font-bold text-sm">
-              &times;
-            </button>
-          </div>
-        )}
-
-        {/* Filter Controls Bar */}
+        {/* Search & Filter Bar */}
         <div className="bg-white p-4 rounded border border-concrete-300 shadow-blueprint flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="relative w-full md:w-80">
-            <span className="material-symbols-outlined absolute left-3 top-2.5 text-navy-400 text-lg">search</span>
+            <span className="material-symbols-outlined absolute left-3 top-2.5 text-brandSteel text-lg">search</span>
             <input
               type="text"
               placeholder="Search by beam or project name..."
               value={search}
               onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
-              className="w-full pl-9 pr-4 py-2 bg-concrete-50 border border-concrete-300 rounded text-xs text-navy-900 font-body"
+              className="w-full pl-9 pr-4 py-2 bg-brandBg border border-concrete-300 rounded text-xs text-brandNavy font-body"
             />
           </div>
 
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono text-navy-500">Status:</span>
+              <span className="text-xs font-mono text-brandSteel">Status:</span>
               <select
                 value={statusFilter}
                 onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
-                className="bg-concrete-50 border border-concrete-300 rounded text-xs px-3 py-1.5 font-mono text-navy-800"
+                className="bg-brandBg border border-concrete-300 rounded text-xs px-3 py-1.5 font-mono text-brandNavy"
               >
                 <option value="ALL">All Statuses</option>
-                <option value="PASS">PASS Only</option>
-                <option value="WARNING">WARNING Only</option>
+                <option value="PASS">PASS Only (≥80%)</option>
+                <option value="WARNING">WARNING Only (&lt;80%)</option>
               </select>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono text-navy-500">Sort:</span>
+              <span className="text-xs font-mono text-brandSteel">Sort:</span>
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value)}
-                className="bg-concrete-50 border border-concrete-300 rounded text-xs px-3 py-1.5 font-mono text-navy-800"
+                className="bg-brandBg border border-concrete-300 rounded text-xs px-3 py-1.5 font-mono text-brandNavy"
               >
                 <option value="latest">Latest First</option>
                 <option value="oldest">Oldest First</option>
@@ -203,42 +216,38 @@ export default function HistoryPage() {
           </div>
         </div>
 
-        {/* History Table Container */}
+        {/* History Table */}
         <div className="bg-white rounded border border-concrete-300 shadow-blueprint overflow-hidden">
           {currentItems.length === 0 ? (
-            /* Clean Engineering Empty State */
             <div className="p-12 text-center space-y-4">
-              <div className="w-14 h-14 rounded-full bg-cyanAccent-50 border border-cyanAccent-200 flex items-center justify-center text-cyanAccent-600 mx-auto">
+              <div className="w-14 h-14 rounded-full bg-brandBg border border-concrete-300 flex items-center justify-center text-brandNavy mx-auto">
                 <span className="material-symbols-outlined text-3xl">history_toggle_off</span>
               </div>
               <div className="space-y-1">
-                <h3 className="font-heading font-bold text-base text-navy-800">No analyses available</h3>
-                <p className="text-xs text-navy-500">Run your first beam analysis to see prediction history.</p>
+                <h3 className="font-heading font-bold text-base text-brandNavy">No analyses stored in history</h3>
+                <p className="text-xs text-brandSteel">Run your first beam analysis to generate execution history.</p>
               </div>
-              <Button variant="accent" size="sm" icon="play_arrow" onClick={() => navigate('/analysis')}>
-                Run Beam Analysis
+              <Button variant="accent" size="sm" icon="play_arrow" onClick={() => navigate('/beam-design')}>
+                Create Beam Input
               </Button>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
-                <thead className="bg-navy-50 font-heading font-bold text-[11px] text-navy-700 uppercase border-b border-concrete-200">
+                <thead className="bg-brandBg font-heading font-bold text-[11px] text-brandNavy uppercase border-b border-concrete-200">
                   <tr>
                     <th className="p-3.5 text-center w-12">Select</th>
-                    <th className="p-3.5">Beam & Project</th>
-                    <th className="p-3.5">Analysis ID / Date</th>
+                    <th className="p-3.5">Beam Name</th>
+                    <th className="p-3.5">Date</th>
                     <th className="p-3.5 text-center">Health Score</th>
                     <th className="p-3.5">Failure Mode</th>
                     <th className="p-3.5">Pmax (kN)</th>
-                    <th className="p-3.5">Δult (mm)</th>
-                    <th className="p-3.5">Status</th>
-                    <th className="p-3.5 text-right">Actions</th>
+                    <th className="p-3.5 text-right min-w-[280px]">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-concrete-200 text-xs font-mono">
                   {currentItems.map((item) => {
                     const isSelected = selectedIds.includes(String(item.analysisId));
-                    const projName = item.projectName || item.project_name || 'Building Project';
                     const dateStr = item.createdAt 
                       ? new Date(item.createdAt).toLocaleDateString()
                       : new Date().toLocaleDateString();
@@ -247,7 +256,7 @@ export default function HistoryPage() {
                       <tr
                         key={item.analysisId}
                         className={`transition-colors ${
-                          isSelected ? 'bg-steel-50/90 font-medium' : 'hover:bg-concrete-50'
+                          isSelected ? 'bg-amber-50/70 font-medium' : 'hover:bg-brandBg'
                         }`}
                       >
                         <td className="p-3.5 text-center">
@@ -255,49 +264,65 @@ export default function HistoryPage() {
                             type="checkbox"
                             checked={isSelected}
                             onChange={() => handleToggleSelect(item.analysisId)}
-                            className="w-4 h-4 rounded text-steel-600 focus:ring-steel-500 border-concrete-400 cursor-pointer"
+                            className="w-4 h-4 rounded text-brandNavy focus:ring-brandNavy border-concrete-400 cursor-pointer"
                           />
                         </td>
-                        <td className="p-3.5">
-                          <div className="font-bold text-navy-900">{item.beamName}</div>
-                          <div className="text-[10px] text-navy-400">Project: {projName}</div>
+                        <td className="p-3.5 font-bold text-brandNavy">
+                          <div className="text-sm font-extrabold">{item.beamName}</div>
+                          <div className="text-[10px] text-brandSteel font-normal">ID: #{item.analysisId}</div>
                         </td>
-                        <td className="p-3.5 text-navy-600">
-                          <div className="font-bold text-navy-900">#{item.analysisId}</div>
-                          <div className="text-[10px] text-navy-400">{dateStr}</div>
+                        <td className="p-3.5 text-brandSteel font-semibold">
+                          {dateStr}
                         </td>
-                        <td className="p-3.5 text-center font-extrabold text-navy-900">
-                          <span className={`inline-block px-2 py-0.5 rounded ${
-                            (item.beam_health_score ?? 85) >= 80 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                        <td className="p-3.5 text-center font-extrabold text-brandNavy">
+                          <span className={`inline-block px-2.5 py-0.5 rounded font-black ${
+                            (item.beam_health_score ?? 85) >= 80 ? 'bg-emerald-100 text-emerald-900' : 'bg-amber-100 text-amber-900'
                           }`}>
                             {item.beam_health_score ?? 85}%
                           </span>
                         </td>
-                        <td className="p-3.5 text-navy-700">
-                          {item.prediction?.failure_mode ?? 'Flexural'}
+                        <td className="p-3.5 text-brandNavy font-semibold">
+                          {item.prediction?.failure_mode ?? 'Flexural-bending (ductile)'}
                         </td>
-                        <td className="p-3.5 font-bold text-navy-900">
+                        <td className="p-3.5 font-black text-brandNavy text-sm">
                           {item.prediction?.pmax ?? '--'} kN
-                        </td>
-                        <td className="p-3.5 font-bold text-navy-900">
-                          {item.prediction?.delta_ult ?? '--'} mm
-                        </td>
-                        <td className="p-3.5">
-                          {getStatusBadge(item.beam_health_score ?? 85)}
                         </td>
                         <td className="p-3.5 text-right">
                           <div className="flex items-center justify-end gap-1.5">
+                            {/* View Button */}
                             <button
                               onClick={() => handleOpenRecord(item.analysisId)}
-                              className="p-1.5 text-navy-600 hover:text-steel-600 hover:bg-concrete-100 rounded transition font-bold flex items-center gap-1 text-[11px]"
-                              title="Re-Open Analysis"
+                              className="px-2.5 py-1 text-brandNavy bg-concrete-100 hover:bg-brandNavy hover:text-white rounded transition font-bold flex items-center gap-1 text-[11px]"
+                              title="View Analysis"
                             >
-                              <span className="material-symbols-outlined text-base">open_in_new</span>
-                              Re-Open
+                              <span className="material-symbols-outlined text-xs">visibility</span>
+                              View
                             </button>
+
+                            {/* Compare Button */}
+                            <button
+                              onClick={() => handleCompareSingle(item.analysisId)}
+                              className="px-2.5 py-1 text-amber-900 bg-amber-100 hover:bg-amber-500 hover:text-white rounded transition font-bold flex items-center gap-1 text-[11px]"
+                              title="Compare Beam"
+                            >
+                              <span className="material-symbols-outlined text-xs">compare_arrows</span>
+                              Compare
+                            </button>
+
+                            {/* Download Report Button */}
+                            <button
+                              onClick={() => handleOpenReport(item.analysisId)}
+                              className="px-2.5 py-1 text-slate-800 bg-slate-200 hover:bg-slate-700 hover:text-white rounded transition font-bold flex items-center gap-1 text-[11px]"
+                              title="Download Report Sheet"
+                            >
+                              <span className="material-symbols-outlined text-xs">description</span>
+                              Report
+                            </button>
+
+                            {/* Delete Button */}
                             <button
                               onClick={() => handleDelete(item.analysisId)}
-                              className="p-1.5 text-navy-400 hover:text-red-600 hover:bg-red-50 rounded transition"
+                              className="p-1 text-rose-600 hover:text-white hover:bg-rose-600 rounded transition"
                               title="Delete Record"
                             >
                               <span className="material-symbols-outlined text-base">delete</span>
@@ -314,25 +339,25 @@ export default function HistoryPage() {
 
           {/* Pagination Footer */}
           {totalPages > 1 && (
-            <div className="p-3.5 bg-navy-50/50 border-t border-concrete-200 flex items-center justify-between font-mono text-xs">
-              <span className="text-navy-500">
+            <div className="p-3.5 bg-brandBg border-t border-concrete-200 flex items-center justify-between font-mono text-xs">
+              <span className="text-brandSteel">
                 Showing {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, filteredList.length)} of {filteredList.length} runs
               </span>
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="px-2.5 py-1 rounded bg-white border border-concrete-300 text-navy-700 hover:bg-concrete-100 disabled:opacity-40"
+                  className="px-2.5 py-1 rounded bg-white border border-concrete-300 text-brandNavy hover:bg-concrete-100 disabled:opacity-40"
                 >
                   Prev
                 </button>
-                <span className="px-3 py-1 font-bold text-navy-900">
+                <span className="px-3 py-1 font-bold text-brandNavy">
                   {currentPage} / {totalPages}
                 </span>
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="px-2.5 py-1 rounded bg-white border border-concrete-300 text-navy-700 hover:bg-concrete-100 disabled:opacity-40"
+                  className="px-2.5 py-1 rounded bg-white border border-concrete-300 text-brandNavy hover:bg-concrete-100 disabled:opacity-40"
                 >
                   Next
                 </button>
